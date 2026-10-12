@@ -58,6 +58,7 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/core.js` | Validation, migration, collection operations, Undo, templates, backups, Markdown |
 | `dist/persistence.js` | Debounce, revision checks, Web Locks, and conflict resolution |
 | `dist/app.js` | DOM rendering, event handling, accessible focus, clipboard, downloads |
+| `dist/social-preview.png` | Homepage image for shared links (1200 × 630) |
 | `serve.cjs` | Loopback static development server |
 
 The deployable artifact is the complete `dist/` directory, including all three JavaScript modules. A reproducible artifact package can be made from the repository root:
@@ -69,5 +70,11 @@ tar -czf promptly-static.tar.gz -C dist .
 ```
 
 Upload that directory or unpacked artifact to an HTTPS static host using its existing deployment procedure. `.openai/hosting.json` records a static project with `dist` as its directory. This repository contains no Wrangler configuration, Cloudflare deployment workflow, or credentials, so it cannot reproduce the existing workers.dev site's exact deployment by itself. Obtain the actual hosting configuration before deploying there. No deployment is performed by tests or checks.
+
+## Shared-link previews
+
+`dist/index.html` includes Open Graph and large-image Twitter card metadata in the initial HTML, so crawlers can read it without running JavaScript. Both use `dist/social-preview.png`, a crop of the current homepage screenshot in `ReadME_Assets/home.png`. Regenerate it with `python scripts/generate_social_preview.py` (requires Pillow).
+
+The canonical, Open Graph, and Twitter image URLs use `https://promptly.thehawk6353.workers.dev/`. Update those absolute URLs if the public domain changes. Home, about, and builder links use fragments and share the same preview. Deploy the complete `dist/` directory, then verify the public HTML contains the metadata and `/social-preview.png` returns the PNG. Platforms may cache older previews; request a refresh in their link-preview debugger after deployment if needed.
 
 
