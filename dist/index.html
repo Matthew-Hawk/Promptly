@@ -1,6 +1,503 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#157F1F"><meta name="description" content="Build clear, intentional AI prompts one block at a time. A visual Markdown prompt builder that keeps you in control."><title>Promptly — Build your intent</title><link rel="icon" href="favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="favicon.svg"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="stylesheet" href="style.css"></head>
-<body><div class="ambient" aria-hidden="true"></div><header><a class="brand" href="#home"><span class="brand-mark">▦</span>promptly<span class="brand-dot">.</span></a><nav aria-label="Main navigation"><a href="#home" data-page="home">Home</a><a href="#about" data-page="about">What is this?</a><a href="#builder" data-page="builder">The builder <span>↗</span></a></nav><button class="palette" id="palette" aria-label="Switch to midnight palette" title="Remix the palette">◐ <span>Palette play</span></button></header>
-<main id="home" class="page"><section class="hero"><div class="hero-copy"><div class="eyebrow"><span class="pulse"></span> YOUR IDEAS. BETTER ARTICULATED.</div><h1>Big ideas.<br>Little blocks.<br><em>Better prompts.</em></h1><p>Give your AI a little more direction.<br>Build clear, intentional prompts, one block at a time.<br>No magic words. Just a little structure.</p><div class="hero-actions"><a class="button primary" href="#builder">Get started <span>↗</span></a><a class="button secondary" href="#about">What is this? <span>→</span></a></div><div class="hero-note"><span class="mini-stack">▰ ▰ ▰</span> Made for humans. Ready for any AI.</div></div><div class="hero-art" aria-label="Illustration of role, task, and context blocks joining into a structured prompt"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="art-spark spark-one">✳</span><span class="art-spark spark-two">+</span><span class="art-label">A LITTLE STRUCTURE GOES A LONG WAY</span><div class="floating-block role"><span class="block-icon">◎</span><div><small>01 / SET THE SCENE</small><strong>Give it a role</strong><span>You are a thoughtful designer…</span></div><b>↗</b></div><div class="connector">↓</div><div class="floating-block task"><span class="block-icon">↗</span><div><small>02 / DEFINE THE GOAL</small><strong>Make the task clear</strong><span>Create a welcoming landing page…</span></div><b>↗</b></div><div class="floating-block context"><span class="block-icon">≡</span><div><small>03 / ADD THE DETAILS</small><strong>Bring your context</strong><span>For curious people with big ideas…</span></div><b>↗</b></div><div class="output-slip"><span>✦</span> A prompt with purpose. <b>✓</b></div><span class="art-caption">YOUR INTENT, CONNECTED.</span></div></section><section class="process"><span class="eyebrow">FROM “KIND OF LIKE…” TO CRYSTAL CLEAR.</span><div><span><b>01</b> Pick your blocks</span><i>→</i><span><b>02</b> Make it yours</span><i>→</i><span><b>03</b> Take it anywhere <span class="tiny-tag">.md</span></span></div></section><section class="human"><div class="human-symbol" aria-hidden="true">✳</div><div><div class="eyebrow">KEEP THE HUMAN IN THE LOOP</div><h2>AI can do a lot.<br>But the intention? <em>That’s yours.</em></h2><p>You know the audience, the nuance, and what good looks like. Promptly helps you put that judgment into words—so you stay the architect of the outcome.</p></div><a href="#about" class="text-link">A little more about why <span>↗</span></a></section><footer><span>promptly. <small>Built with intention.</small></span><span>A little clarity changes everything. ✦</span></footer></main>
-<main id="builder" class="page" hidden><section class="builder-heading"><div><div class="eyebrow">YOUR PROMPT WORKSHOP</div><h1>Let’s build something <em>clear.</em></h1><p>Pick a block. Add your intent. Watch it come together.</p></div><div class="draft-state" id="save-status">● Saved on this device</div></section><div class="workshop"><aside class="library"><div class="panel-title"><h2>The building blocks</h2><span>01</span></div><p>Click a block to add it to your prompt.</p><label class="search-label"><span>⌕</span><input id="block-search" type="search" placeholder="Find a block…" aria-label="Find a block"></label><div id="block-library"></div><div class="library-tip"><span>✦</span><strong>A little guidance</strong><p>Start with a task. Add only the details that help your AI understand your goal.</p></div></aside><section class="canvas"><div class="panel-title"><h2>Your composition</h2><span>02</span></div><div class="canvas-toolbar"><label for="prompt-name" class="sr-only">Prompt name</label><input id="prompt-name" value="Untitled prompt" maxlength="100"><button id="clear" class="quiet">Clear all</button></div><div id="composition"></div><button id="add-hint" class="add-hint">＋ Add another building block</button><div class="starter"><span>Need a starting point?</span><button id="example">Try an example ↗</button></div></section><aside class="preview"><div class="panel-title"><h2>The bigger picture</h2><span>03</span></div><div class="preview-toolbar"><span><span class="pulse"></span> LIVE PREVIEW</span><div role="group" aria-label="Preview mode"><button class="selected" id="rendered-tab" aria-pressed="true">Preview</button><button id="markdown-tab" aria-pressed="false">Markdown</button></div></div><div id="preview-output"></div><div class="preview-meta"><span id="block-count"></span><span id="word-count"></span></div></aside></div><div class="export-bar"><div><span class="export-icon">↗</span><div><strong>Your ideas, ready to go.</strong><span>Works wherever you use AI.</span></div></div><div><button id="download" class="button secondary">↓ Export .md</button><button id="copy" class="button primary">Copy prompt <span>▣</span></button></div></div><p class="local-note">Your draft stays in this browser. Export a copy to keep it elsewhere.</p></main>
-<main id="about" class="page" hidden><section class="about-hero"><div class="eyebrow">A LITTLE METHOD TO THE MAGIC</div><h1>Don’t leave your intent<br><em>up to interpretation.</em></h1><p>AI doesn’t have the full picture in your head. A structured prompt makes your goal, your context, and your expectations visible.</p></section><section class="transformation"><div class="before"><span class="eyebrow">THE STARTING THOUGHT</span><h2>“Write something<br>for my website.”</h2><p>A perfectly good idea. With a few missing pieces.</p></div><span class="transform-arrow">→</span><div class="after"><span class="eyebrow">THE INTENTIONAL PROMPT</span><div><b>◎ Role</b><p>You are an experienced website copywriter.</p></div><div><b>↗ Task</b><p>Write a welcoming homepage introduction.</p></div><div><b>≡ Context</b><p>For a neighborhood pottery studio welcoming beginners.</p></div><div><b>▤ Output</b><p>One headline and a paragraph under 80 words. Warm, plain language.</p></div></div></section><section class="about-steps"><article><span>01 / STRUCTURE</span><h2>Give every detail<br>a home.</h2><p>Blocks separate the job from the background, the constraints from the output. They become familiar Markdown sections your model can follow.</p></article><article><span>02 / INTENTION</span><h2>You make the<br>important calls.</h2><p>Choose the goal, define the boundaries, and decide what success means. This tool organizes your instructions; your judgment gives them purpose.</p></article><article><span>03 / ITERATION</span><h2>A starting point.<br>Then a conversation.</h2><p>Copy your prompt into your preferred AI, review what comes back, and refine. Clear instructions help, but you still decide whether the result is right.</p></article></section><section class="about-cta"><span aria-hidden="true">✳</span><h2>A little clarity.<br><em>A lot more possibility.</em></h2><a href="#builder" class="button primary">Build your first prompt ↗</a></section><footer><span>promptly. <small>Built with intention.</small></span><a href="#home">Back to home ↑</a></footer></main><div id="toast" role="status" aria-live="polite"></div><script src="app.js"></script></body></html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#157F1F">
+    <meta name="description" content="Build and reuse briefs for customer-facing content. Local prompt collection, editable templates, and Markdown export without an account.">
+    <title>
+      Promptly — Build your intent
+    </title>
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true">
+    </div>
+    <header>
+      <a class="brand" href="#home">
+        <span class="brand-mark">
+          ▦
+        </span>
+        promptly
+        <span class="brand-dot">
+          .
+        </span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#home" data-page="home">
+          Home
+        </a>
+        <a href="#about" data-page="about">
+          What is this?
+        </a>
+        <a href="#builder" data-page="builder">
+          The builder
+          <span>
+            ↗
+          </span>
+        </a>
+      </nav>
+      <button class="palette" id="palette" aria-label="Switch to midnight palette" title="Remix the palette">
+        ◐
+      </button>
+    </header>
+    <main id="home" class="page">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span class="pulse">
+            </span>
+            YOUR IDEAS. BETTER ARTICULATED.
+          </div>
+          <h1>
+            Big ideas.
+            <br>
+            Clear briefs.
+            <br>
+            <em>
+              Your words.
+            </em>
+          </h1>
+          <p>
+            Write customer-facing content with a reusable brief.
+            <br>
+            Choose a template, add your facts, and copy your prompt.
+            <br>
+            Your work stays in this browser.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#builder">
+              Get started
+              <span>
+                ↗
+              </span>
+            </a>
+            <a class="button secondary" href="#about">
+              What is this?
+              <span>
+                →
+              </span>
+            </a>
+          </div>
+          <div class="hero-note">
+            <span class="mini-stack">
+              ▰ ▰ ▰
+            </span>
+            Made for humans. Ready for any AI.
+          </div>
+        </div>
+        <div class="hero-art" aria-label="Illustration of task and context blocks joining into a brief">
+          <div class="orbit orbit-one">
+          </div>
+          <div class="orbit orbit-two">
+          </div>
+          <span class="art-spark spark-one">
+            ✳
+          </span>
+          <span class="art-spark spark-two">
+            +
+          </span>
+          <span class="art-label">
+            A LITTLE STRUCTURE GOES A LONG WAY
+          </span>
+          <div class="floating-block role">
+            <span class="block-icon">
+              ◎
+            </span>
+            <div>
+              <small>
+                01 / DEFINE THE TASK
+              </small>
+              <strong>
+                Start with a task
+              </strong>
+              <span>
+                Write a launch email for…
+              </span>
+            </div>
+            <b>
+              ↗
+            </b>
+          </div>
+          <div class="connector">
+            ↓
+          </div>
+          <div class="floating-block task">
+            <span class="block-icon">
+              ↗
+            </span>
+            <div>
+              <small>
+                02 / ADD VERIFIED FACTS
+              </small>
+              <strong>
+                Bring your context
+              </strong>
+              <span>
+                Our audience needs…
+              </span>
+            </div>
+            <b>
+              ↗
+            </b>
+          </div>
+          <div class="floating-block context">
+            <span class="block-icon">
+              ≡
+            </span>
+            <div>
+              <small>
+                03 / SHAPE THE OUTPUT
+              </small>
+              <strong>
+                Specify the output
+              </strong>
+              <span>
+                A subject line and a short email…
+              </span>
+            </div>
+            <b>
+              ↗
+            </b>
+          </div>
+          <div class="output-slip">
+            <span>
+              ✦
+            </span>
+            A prompt with purpose.
+            <b>
+              ✓
+            </b>
+          </div>
+          <span class="art-caption">
+            YOUR INTENT, CONNECTED.
+          </span>
+        </div>
+      </section>
+      <section class="process">
+        <span class="eyebrow">
+          FROM “KIND OF LIKE…” TO CRYSTAL CLEAR.
+        </span>
+        <div>
+          <span>
+            <b>
+              01
+            </b>
+            Choose a starting point
+          </span>
+          <i>
+            →
+          </i>
+          <span>
+            <b>
+              02
+            </b>
+            Make it yours
+          </span>
+          <i>
+            →
+          </i>
+          <span>
+            <b>
+              03
+            </b>
+            Take it anywhere
+            <span class="tiny-tag">
+              .md
+            </span>
+          </span>
+        </div>
+      </section>
+      <section class="human">
+        <div class="human-symbol" aria-hidden="true">
+          ✳
+        </div>
+        <div>
+          <div class="eyebrow">
+            KEEP THE HUMAN IN THE LOOP
+          </div>
+          <h2>
+            AI can do a lot.
+            <br>
+            But the intention?
+            <em>
+              That’s yours.
+            </em>
+          </h2>
+          <p>
+            You know the audience, the nuance, and what good looks like. Promptly helps you put that judgment into words—so you stay the architect of the outcome.
+          </p>
+        </div>
+        <a href="#about" class="text-link">
+          A little more about why
+          <span>
+            ↗
+          </span>
+        </a>
+      </section>
+      <footer>
+        <span>
+          promptly.
+          <small>
+            Built with intention.
+          </small>
+        </span>
+        <span>
+          A little clarity changes everything. ✦
+        </span>
+      </footer>
+    </main>
+    <main id="builder" class="page" hidden>
+      <section class="builder-heading">
+        <div>
+          <div class="eyebrow">
+            YOUR PROMPT WORKSHOP
+          </div>
+          <h1>
+            A useful brief.
+            <em>
+              Ready to reuse.
+            </em>
+          </h1>
+          <p>
+            Start with your goal. Add the facts that matter.
+          </p>
+        </div>
+        <div class="draft-state" id="save-status" role="status" aria-live="polite">
+        </div>
+      </section>
+      <section id="recovery" class="notice" hidden>
+        <h2>
+          Recover your saved work
+        </h2>
+        <p>
+          Your original stored data is untouched. Download the original for recovery. You can edit and export a temporary brief, but saving is paused. Repair or remove damaged browser storage only after keeping a backup.
+        </p>
+        <button id="raw-backup">
+          Download original data
+        </button>
+      </section>
+      <section id="conflict" class="notice" hidden>
+        <h2>
+          Another tab changed this workspace
+        </h2>
+        <p>
+          Your local work is still here. Keep both saves this tab’s brief and collection as extra copies alongside the latest workspace. Loading latest discards this tab’s local changes; download a backup first to keep them.
+        </p>
+        <button id="keep-both">
+          Keep both
+        </button>
+        <button id="use-latest">
+          Load latest
+        </button>
+      </section>
+      <p id="storage-note" class="notice" hidden>
+        Saving is unavailable. Keep this tab open and download a JSON backup. Safe saving requires browser storage, Web Locks, and HTTPS or localhost.
+      </p>
+      <section class="starting-points" aria-labelledby="start-heading">
+        <h2 id="start-heading">
+          Choose a starting point
+        </h2>
+        <p>
+          Replace the bracketed placeholders with your facts. You can undo template changes.
+        </p>
+        <div id="templates">
+          <button data-template="launch">
+            Launch email
+          </button>
+          <button data-template="homepage">
+            Homepage introduction
+          </button>
+          <button data-template="reply">
+            Customer reply
+          </button>
+          <button id="new-prompt">
+            Blank brief
+          </button>
+        </div>
+      </section>
+      <div class="builder-controls">
+        <div role="group" aria-label="Brief view">
+          <button id="view-editor" aria-pressed="true" aria-controls="canvas">
+            Edit your brief
+          </button>
+          <button id="view-preview" aria-pressed="false" aria-controls="preview">
+            Preview prompt
+          </button>
+        </div>
+        <button id="undo" disabled>
+          Undo
+        </button>
+        <button id="download">
+          Export Markdown
+        </button>
+        <button id="copy" class="primary">
+          Copy prompt
+        </button>
+      </div>
+      <div id="toast" role="status" aria-live="polite">
+      </div>
+      <p id="guidance" class="guidance">
+      </p>
+      <div class="workshop">
+        <section class="canvas" id="canvas" aria-labelledby="editor-heading">
+          <div class="panel-title">
+            <h2 id="editor-heading">
+              Edit your brief
+            </h2>
+          </div>
+          <div class="canvas-toolbar">
+            <label for="prompt-name">
+              Name
+            </label>
+            <input id="prompt-name" maxlength="100">
+            <button id="clear" class="quiet">
+              Clear brief
+            </button>
+          </div>
+          <div id="composition">
+          </div>
+          <details id="details-drawer">
+            <summary id="add-details">
+              ＋ Add details
+            </summary>
+            <p>
+              Task, Context, Constraints, and Output format cover most briefs. Add optional details when helpful.
+            </p>
+            <div id="block-library">
+            </div>
+          </details>
+          <button id="save-prompt" class="button secondary">
+            Save a copy to collection
+          </button>
+          <p class="local-note">
+            Your working brief saves automatically. Collection entries are snapshots; save another copy after editing.
+          </p>
+        </section>
+        <section class="preview" id="preview" hidden aria-labelledby="preview-heading">
+          <div class="panel-title">
+            <h2 id="preview-heading">
+              Preview prompt
+            </h2>
+          </div>
+          <div class="preview-toolbar">
+            <div role="group" aria-label="Preview format">
+              <button id="rendered-tab" aria-pressed="true">
+                Readable
+              </button>
+              <button id="markdown-tab" aria-pressed="false">
+                Markdown
+              </button>
+            </div>
+          </div>
+          <div id="preview-output" tabindex="-1">
+          </div>
+        </section>
+      </div>
+      <button id="copy-bottom" class="button primary bottom-copy">
+        Copy this prompt
+      </button>
+      <details class="collection">
+        <summary>
+          Saved prompts
+          &amp;
+          backups
+        </summary>
+        <h2 id="collection-heading" tabindex="-1">
+          Your prompt collection
+        </h2>
+        <label class="archive-label">
+          <input type="checkbox" id="show-archived">
+          Show archived prompts
+        </label>
+        <div id="prompt-list">
+        </div>
+        <div class="backup-controls">
+          <button id="backup">
+            Download JSON backup
+          </button>
+          <label for="import-file">
+            Import JSON backup (adds copies)
+          </label>
+          <input id="import-file" type="file" accept=".json,application/json">
+        </div>
+        <p>
+          Backups include the working brief, saved prompts, and archived prompts. Import adds copies to your collection and keeps your current brief.
+        </p>
+      </details>
+      <p class="local-note">
+        Content stays in this browser. No account or API key. Browser storage can be cleared or reach its quota: download backups regularly.
+      </p>
+    </main>
+    <main id="about" class="page" hidden>
+      <section class="about-hero">
+        <div class="eyebrow">
+          A LITTLE STRUCTURE
+        </div>
+        <h1>
+          Your judgment.
+          <br>
+          <em>
+            A clearer brief.
+          </em>
+        </h1>
+        <p>
+          Tell the AI what to write, who it is for, which facts it may use, and what the output should look like. Add only details that help. Promptly organizes those instructions into Markdown; review every AI response for accuracy before using it.
+        </p>
+      </section>
+      <section class="about-cta">
+        <h2>
+          Start with your next piece of content.
+        </h2>
+        <a href="#builder" class="button primary">
+          Choose a template ↗
+        </a>
+        <p class="local-note">
+          No model calls, accounts, or content analytics. Download JSON backups to keep editable work across browsers or devices.
+        </p>
+      </section>
+    </main>
+    <dialog id="rename-dialog" aria-labelledby="rename-heading">
+      <form id="rename-form">
+        <h2 id="rename-heading">
+          Rename saved prompt
+        </h2>
+        <label for="rename-name">
+          Prompt name
+        </label>
+        <input id="rename-name" maxlength="100" required>
+        <div class="dialog-actions">
+          <button type="button" id="rename-cancel">
+            Cancel
+          </button>
+          <button type="submit" value="save" id="rename-confirm" class="primary">
+            Save name
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="latest-dialog" aria-labelledby="latest-heading">
+      <form id="latest-form">
+        <h2 id="latest-heading">
+          Load the latest workspace?
+        </h2>
+        <p>
+          This discards this tab’s local brief and collection changes. Cancel and download a JSON backup first if you need to keep them, or use Keep both.
+        </p>
+        <div class="dialog-actions">
+          <button type="button" id="latest-cancel">
+            Cancel
+          </button>
+          <button type="submit" value="load" class="primary">
+            Load latest and discard local changes
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="app.js">
+    </script>
+  </body>
+</html>

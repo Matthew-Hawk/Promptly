@@ -1,84 +1,73 @@
-<div align="center">
-
 # ▦ promptly.
 
-### Big ideas. Little blocks. Better prompts.
+A browser-local workshop for people who repeatedly use AI to write customer-facing content. No account, API key, AI calls, or content analytics. The green-and-cream and midnight palettes remain available.
 
-Give your AI a little more direction.<br>
-A visual workshop for turning your ideas into clear, intentional Markdown prompts.
+## Build and reuse a brief
 
-[![Try the builder](https://img.shields.io/badge/TRY_THE_BUILDER_%E2%86%97-157F1F?style=for-the-badge)](https://promptly.thehawk6353.workers.dev/#builder)
+Choose **Launch email**, **Homepage introduction**, or **Customer reply** before composing, or start a blank brief with Task. Replace template placeholders with verified facts. Context, Constraints, and Output format are under **Add details**; Role, Tone, Examples, and Success criteria are optional. Suggestions explain missing tasks and bracketed placeholders without blocking copying.
 
-**The best way to try Promptly is the [live builder ↗](https://promptly.thehawk6353.workers.dev/#builder).**<br>
-No account. No API key. Just your ideas and a little structure.
+Switch between **Edit your brief** and **Preview prompt**. Copy from the top controls or the bottom of the brief, or export Markdown. Clipboard denial switches to selected Markdown for manual copying. Controls stay in the document flow, with 44px touch targets, visible keyboard focus, labeled fields, and reduced-motion support.
 
-![Promptly homepage with a green-and-cream palette and illustrated prompt blocks](ReadME_Assets/home.png)
+**Save a copy to collection** captures a named snapshot. Open an entry as an editable working copy, rename, duplicate, archive, or restore it. Later edits save to the working brief; save another collection copy when ready. Archiving retains content. Undo restores up to 20 previous briefs after block removal, clearing, template replacement, opening a saved prompt, or starting a new brief. Undo history is in memory and resets on reload or conflict resolution; it does not undo typing or collection changes.
 
-![HTML](https://img.shields.io/badge/HTML-f7f8f1?style=flat-square&logo=html5&logoColor=157F1F)
-![CSS](https://img.shields.io/badge/CSS-f7f8f1?style=flat-square&logo=css&logoColor=5C6784)
-![JavaScript](https://img.shields.io/badge/JavaScript-f7f8f1?style=flat-square&logo=javascript&logoColor=157F1F)
+## Keeping your work
 
-</div>
+- The working brief and collection persist in `promptly-workspace-v1` in this origin's `localStorage`, after a 400ms debounce. Pending edits also flush on page hide and when the page becomes hidden. Unsaved work requests a browser exit warning where supported; browsers may terminate a page before an asynchronous flush completes. Wait for **Saved in this browser** before closing important work.
+- Valid `promptly-draft` data migrates automatically. The original legacy key is retained. Unreadable or invalid data pauses persistence and exposes **Download original data**. It is never silently replaced. Temporary edits can still be copied or backed up. To recover, keep the original download, repair the JSON outside the app, and restore it through a valid backup; advanced users may repair the affected key in developer tools. Removing a damaged key after making a backup allows a fresh workspace on reload.
+- Writers share an origin-wide Web Lock and compare the complete stored revision before writing. Another tab's storage changes pause saves. **Keep both** preserves the latest workspace and adds this tab's entire collection and working brief as copies. **Load latest** discards local changes after confirmation. Download a backup first if needed. Conflict resolution resets Undo.
+- Safe persistence needs Web Locks and browser storage on HTTPS or localhost. Unsupported browsers, denied storage, lock errors, or quota errors keep work in memory and show **Storage unavailable**. Copy and downloads still work. Reload after addressing the problem.
+- Storage is local to the browser profile and origin, including the port. It does not sync across devices, subdomains, or browsers. Private browsing, clearing site data, browser eviction, and quota limits can remove saved work. Browser-local does not mean encrypted.
 
-## 🧩 Your intent, one block at a time.
+Use **Saved prompts & backups → Download JSON backup** regularly. The versioned `promptly-backup` JSON includes editable blocks, the working brief, and active and archived collection entries. Import validates the entire file before changing anything and adds copies to the collection, including the imported working brief. It leaves the current brief and existing collection intact. Markdown export preserves text but is not an editable backup format.
 
-1. **Pick your blocks.** Start with a task, then add the role, context, and details that matter.
-2. **Make it yours.** Fill in the guided fields, give your prompt a name, and reorder or remove blocks as you go.
-3. **See the bigger picture.** Switch between a readable preview and the generated Markdown.
-4. **Take it anywhere.** Copy your prompt or export a `.md` file to use with your preferred AI.
+Limits: 500 collection entries, 100 blocks per brief, 100 characters per name, 100,000 characters per block, and 10 MB of serialized workspace/import data, subject to the browser's usually smaller quota. Keep both/import rejects operations that exceed these limits; export local work for manual recovery instead.
 
-**Eight building blocks:** Role · Task · Context · Constraints · Output format · Tone & style · Examples · Success criteria.
+## Local development and verification
 
-![A composed prompt with editable blocks beside its live preview](ReadME_Assets/builder.png)
-
-## ✦ A little clarity goes a long way.
-
-- **Live preview** with filled-block and word counts.
-- **Searchable block library** and an example prompt to get you started.
-- **Daylight and midnight palettes**, plus subtle animation and reduced-motion support.
-- **Browser-local draft saving**, including your prompt name, blocks, and palette preference.
-- **Markdown export** for a portable copy you can keep elsewhere.
-
-Promptly organizes your instructions; it doesn't send them to an AI model or generate AI responses. Drafts stay in this browser and aren't synced between devices. Export a copy you want to keep.
-
-<details>
-<summary><strong>🌙 See the midnight palette</strong></summary>
-
-![The same prompt workshop in Promptly's midnight palette](ReadME_Assets/midnight.png)
-
-</details>
-
-## ⚙️ Under the hood
-
-**HTML, CSS, and vanilla JavaScript.** No build step, runtime libraries, or AI backend. Hash navigation connects the home, explanation, and builder views; `localStorage` keeps drafts and palette preferences. Google Fonts are optional, with local font fallbacks.
-
-| File | Purpose |
-| :--- | :--- |
-| `dist/index.html` | Page layouts and builder interface |
-| `dist/style.css` | Responsive design, palettes, and motion |
-| `dist/app.js` | Blocks, previews, draft saving, and exports |
-| `serve.cjs` | Local static server |
-
-## 💻 Run locally
-
-With Git and Node.js installed:
+Use Node.js 18 or newer (CI uses 22). There are no runtime dependencies or build step.
 
 ```sh
 git clone https://github.com/Matthew-Hawk/Promptly.git
 cd Promptly
-node serve.cjs
+npm start
 ```
 
-Open **[http://127.0.0.1:5173/#builder](http://127.0.0.1:5173/#builder)**. No dependency installation needed. Press **Ctrl+C** to stop the server. You can also download and extract the repo ZIP, then run the same server command from its folder.
+Open http://127.0.0.1:5173/#builder. For an isolated origin, run `node serve.cjs 5174`. Stop with Ctrl+C. ES modules require an HTTP server; do not open the HTML as a file URL.
 
-To host a copy, publish the contents of `dist/`. Clipboard access works best over HTTPS or localhost, subject to browser permissions.
+```sh
+npm run check
+npm test
+```
 
----
+The dependency-free Node suite covers validation/recovery, migration, concurrent writes, explicit conflict resolution, quota and lock failures, debounce/flush, Undo, collection snapshots, imports, and Markdown. GitHub Actions runs syntax checks and this suite on pushes and pull requests.
 
-<div align="center">
+For actual browser integration checks:
 
-**Made for humans. Ready for your AI. ✦**
+```sh
+node scripts/browser-checks.cjs
+```
 
-[Build your intent ↗](https://promptly.thehawk6353.workers.dev/#builder) · [Matthew Hawkins](https://github.com/Matthew-Hawk)
+Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixture uses disposable storage on port 5175, simulates clipboard permission denial, checks recovery/migration/reopening, destructive Undo, collection operations, validated backup imports, phone and desktop overflow, and real storage events across two embedded browsing contexts. Keep test servers and `tests/` out of hosting. Also check keyboard Tab/Shift+Tab, Enter/Space controls, palette contrast, copying, and editor/preview at narrow and desktop widths. Automated viewport checks do not simulate a physical phone keyboard or screen reader.
 
-</div>
+## Source and hosting
+
+| File | Responsibility |
+| --- | --- |
+| `dist/index.html` | Home, concise explanation, and builder markup |
+| `dist/style.css` | Palettes, responsive layout, focus, and motion |
+| `dist/core.js` | Validation, migration, collection operations, Undo, templates, backups, Markdown |
+| `dist/persistence.js` | Debounce, revision checks, Web Locks, and conflict resolution |
+| `dist/app.js` | DOM rendering, event handling, accessible focus, clipboard, downloads |
+| `serve.cjs` | Loopback static development server |
+
+The deployable artifact is the complete `dist/` directory, including all three JavaScript modules. A reproducible artifact package can be made from the repository root:
+
+```sh
+npm run check
+npm test
+tar -czf promptly-static.tar.gz -C dist .
+```
+
+Upload that directory or unpacked artifact to an HTTPS static host using its existing deployment procedure. `.openai/hosting.json` records a static project with `dist` as its directory. This repository contains no Wrangler configuration, Cloudflare deployment workflow, or credentials, so it cannot reproduce the existing workers.dev site's exact deployment by itself. Obtain the actual hosting configuration before deploying there. No deployment is performed by tests or checks.
+
+Existing `ReadME_Assets` screenshots depict the earlier interface; they are historical, not current feature documentation.

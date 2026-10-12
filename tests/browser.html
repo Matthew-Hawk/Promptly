@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Promptly browser checks</title>
+<style>body { font: 16px system-ui; margin: 20px; } iframe { width: 390px; height: 844px; border: 1px solid #aaa; max-width: 100%; } li { margin: 12px 0; }</style>
+<h1>Promptly browser checks</h1>
+<p>Disposable localhost:5175 storage only. Do not run this fixture on a production origin.</p>
+<ol id="results"></ol>
+<div id="frames"></div>
+<script type="module">
+const key = 'promptly-workspace-v1';
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+function assert(condition, message) { if (!condition) throw new Error(message); }
+async function until(check) {
+  for (let i = 0; i < 100; i++) { if (check()) return; await wait(50); }
+  throw new Error('Timed out waiting for browser state');
+}
+async function frame(failure = false, width = 390) {
+  const element = document.createElement('iframe');
+  if (width > 390) { element.style.width = width + 'px'; element.style.maxWidth = 'none'; }
+  element.src = '/fixture.html' + (failure ? '?clipboard-failure' : '') + '#builder';
+  document.querySelector('#frames').append(element);
+  await until(() => element.contentDocument?.querySelector('textarea') && element.contentDocument.querySelector('#view-editor').getAttribute('aria-pressed') === 'true');
+  return element;
+}
+function field(element, value) {
+  element.value = value;
+  element.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function removeFrames() { document.querySelector('#frames').replaceChildren(); }
+async function check(name, run) {
+  const li = document.createElement('li');
+  document.querySelector('#results').append(li);
+  try { await run(); li.textContent = 'PASS: ' + name; }
+  catch (error) { li.textContent = 'FAIL: ' + name + ' — ' + error.message; throw error; }
+  finally { removeFrames(); }
+}
+await check('Malformed storage remains untouched; recovery shown', async () => {
+  localStorage.setItem(key, '{broken');
+  const f = await frame();
+  assert(!f.contentDocument.querySelector('#recovery').hidden, 'No recovery notice');
+  field(f.contentDocument.querySelector('textarea'), 'Temporary brief');
+  await wait(600);
+  assert(localStorage.getItem(key) === '{broken', 'Damaged data overwritten');
+  assert(!f.contentDocument.querySelector('#copy').disabled, 'Temporary work cannot be copied');
+});
+localStorage.removeItem(key);
+await check('Legacy migration and reload preserve editable blocks', async () => {
+  const legacy = JSON.stringify({ name: 'Legacy email', blocks: [{ type: 'task', value: 'Legacy content' }] });
+  localStorage.setItem('promptly-draft', legacy);
+  const f = await frame();
+  await until(() => f.contentDocument.querySelector('#save-status').textContent === 'Saved in this browser');
+  assert(f.contentDocument.querySelector('textarea').value === 'Legacy content', 'Legacy content changed');
+  assert(localStorage.getItem('promptly-draft') === legacy, 'Original legacy draft removed');
+  f.remove();
+  const reopened = await frame();
+  assert(reopened.contentDocument.querySelector('textarea').value === 'Legacy content', 'Reload lost content');
+});
+await check('Clipboard denial reveals selected Markdown and preview', async () => {
+  const f = await frame(true);
+  const doc = f.contentDocument;
+  doc.querySelector('#copy').click();
+  await until(() => doc.querySelector('#toast').textContent.includes('Clipboard unavailable'));
+  assert(!doc.querySelector('#preview').hidden, 'Preview is hidden');
+  assert(doc.querySelector('#markdown-tab').getAttribute('aria-pressed') === 'true', 'Markdown not selected');
+  assert(f.contentWindow.getSelection().toString().includes('Legacy content'), 'No manual-copy selection');
+  assert(doc.activeElement.id === 'preview-output', 'Manual-copy focus missing');
+});
+await check('Templates, destructive undo, collection operations, mobile bounds', async () => {
+  const f = await frame(); const doc = f.contentDocument;
+  doc.querySelector('[data-template=homepage]').click();
+  assert(doc.querySelector('textarea').value.includes('[business]'), 'Template not loaded');
+  doc.querySelector('#undo').click();
+  assert(doc.querySelector('textarea').value === 'Legacy content', 'Template undo failed');
+  doc.querySelector('[data-remove]').click(); doc.querySelector('#undo').click();
+  assert(doc.querySelector('textarea').value === 'Legacy content', 'Deletion undo failed');
+  doc.querySelector('#clear').click(); doc.querySelector('#undo').click();
+  assert(doc.querySelector('textarea').value === 'Legacy content', 'Clear undo failed');
+  doc.querySelector('#save-prompt').click();
+  doc.querySelector('[data-rename]').click();
+  field(doc.querySelector('#rename-name'), 'Renamed brief');
+  doc.querySelector('#rename-form').requestSubmit(doc.querySelector('#rename-confirm'));
+  assert(doc.querySelector('.saved-prompt strong').textContent === 'Renamed brief', 'Rename failed');
+  doc.querySelector('[data-duplicate]').click();
+  assert(doc.querySelectorAll('.saved-prompt').length === 2, 'Duplicate missing');
+  doc.querySelector('[data-archive]').click();
+  assert(doc.querySelectorAll('.saved-prompt').length === 1, 'Archive failed');
+  const checkbox = doc.querySelector('#show-archived');
+  checkbox.checked = true; checkbox.dispatchEvent(new Event('change'));
+  assert(doc.querySelectorAll('.saved-prompt').length === 1, 'Archived prompt missing');
+  doc.querySelector('[data-archive]').click();
+  assert(doc.querySelectorAll('.saved-prompt').length === 0, 'Restore failed');
+  doc.querySelector('#canvas').hidden = false;
+  assert(doc.documentElement.scrollWidth <= f.clientWidth + 2, 'Mobile horizontal overflow');
+  assert(doc.querySelector('textarea').getBoundingClientRect().width > 250, 'Editor too narrow');
+  assert(getComputedStyle(doc.querySelector('#copy')).position !== 'fixed', 'Copy covers content');
+  await until(() => doc.querySelector('#save-status').textContent === 'Saved in this browser');
+});
+await check('Real storage events prevent stale tab saves; keep both preserves edits', async () => {
+  const a = await frame(); const b = await frame();
+  const ad = a.contentDocument; const bd = b.contentDocument;
+  field(ad.querySelector('textarea'), 'From first tab');
+  await until(() => ad.querySelector('#save-status').textContent === 'Saved in this browser');
+  await until(() => !bd.querySelector('#conflict').hidden);
+  field(bd.querySelector('textarea'), 'From second tab');
+  await wait(600);
+  assert(JSON.parse(localStorage.getItem(key)).draft.blocks[0].value === 'From first tab', 'Stale tab overwrote first');
+  bd.querySelector('#keep-both').click();
+  await until(() => bd.querySelector('#conflict').hidden);
+  const saved = JSON.parse(localStorage.getItem(key));
+  assert(saved.draft.blocks[0].value === 'From first tab', 'Remote brief lost');
+  assert(saved.prompts.some(p => p.blocks[0]?.value === 'From second tab'), 'Local brief not preserved');
+  await until(() => !ad.querySelector('#conflict').hidden);
+  ad.querySelector('#use-latest').click();
+  assert(ad.querySelector('#latest-dialog').open, 'Discard confirmation missing');
+  ad.querySelector('#latest-cancel').click();
+  assert(!ad.querySelector('#conflict').hidden, 'Cancel resolved conflict unexpectedly');
+  ad.querySelector('#use-latest').click();
+  ad.querySelector('#latest-form').requestSubmit(ad.querySelector('#latest-form button[value=load]'));
+  await until(() => ad.querySelector('#conflict').hidden);
+  assert(ad.querySelectorAll('.saved-prompt').length === saved.prompts.filter(p => !p.archived).length, 'Latest collection not loaded');
+});
+await check('Backup import adds editable copies and invalid import leaves work intact', async () => {
+  const f = await frame(); const doc = f.contentDocument;
+  const snapshot = JSON.parse(localStorage.getItem(key));
+  const before = snapshot.prompts.length;
+  const input = doc.querySelector('#import-file');
+  const transfer = new DataTransfer();
+  transfer.items.add(new File([JSON.stringify({ format: 'promptly-backup', version: 1, data: snapshot })], 'backup.json', { type: 'application/json' }));
+  input.files = transfer.files;
+  input.dispatchEvent(new Event('change'));
+  await until(() => doc.querySelectorAll('.saved-prompt').length === before * 2 + 1);
+  assert(doc.querySelector('textarea').value === snapshot.draft.blocks[0].value, 'Import replaced current work');
+  const imported = doc.querySelectorAll('.saved-prompt').length;
+  const invalid = new DataTransfer();
+  invalid.items.add(new File(['null'], 'invalid.json', { type: 'application/json' }));
+  input.files = invalid.files;
+  input.dispatchEvent(new Event('change'));
+  await until(() => doc.querySelector('#toast').textContent.includes('Unsupported backup format'));
+  assert(doc.querySelectorAll('.saved-prompt').length === imported, 'Invalid import mutated collection');
+  await until(() => doc.querySelector('#save-status').textContent === 'Saved in this browser');
+});
+await check('Desktop editor and preview fit a 1280px viewport without overflow', async () => {
+  const f = await frame(false, 1280); const doc = f.contentDocument;
+  assert(doc.documentElement.clientWidth >= 1260, 'Desktop fixture viewport incorrect');
+  assert(doc.documentElement.scrollWidth <= doc.documentElement.clientWidth, 'Desktop overflow');
+  const editorWidth = doc.querySelector('#canvas').getBoundingClientRect().width;
+  assert(editorWidth > 800 && editorWidth <= 900, 'Desktop editor width incorrect');
+  doc.querySelector('#view-preview').click();
+  assert(!doc.querySelector('#preview').hidden && doc.querySelector('#canvas').hidden, 'Preview switch failed');
+  assert(doc.documentElement.scrollWidth <= doc.documentElement.clientWidth, 'Preview overflow');
+});
+document.title = 'PASS — Promptly browser checks';
+</script>
+</html>

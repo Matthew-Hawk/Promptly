@@ -1,0 +1,6 @@
+{
+  "name": "promptly",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test", "start": "node serve.cjs", "check": "node --check dist/app.js && node --check dist/core.js && node --check dist/persistence.js" }
+}

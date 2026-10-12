@@ -1,33 +1,272 @@
-const definitions = [
- {id:'role',name:'Role',icon:'◎',summary:'Who should the AI be?',help:'What expertise or perspective would help with this task?',placeholder:'You are an experienced…',color:'#157F1F'},
- {id:'task',name:'Task',icon:'↗',summary:'What should it do?',help:'Describe the specific action and the outcome you want.',placeholder:'Create, explain, compare, or help me…',color:'#4CB963'},
- {id:'context',name:'Context',icon:'≡',summary:'Give it the bigger picture',help:'Who is this for? What background does the AI need?',placeholder:'The audience is… The situation is…',color:'#5C6784'},
- {id:'constraints',name:'Constraints',icon:'⊘',summary:'Set some helpful boundaries',help:'Define limits, things to avoid, and requirements to follow.',placeholder:'Keep it under… Avoid… Always include…',color:'#157F1F'},
- {id:'output',name:'Output format',icon:'▤',summary:'Shape the final result',help:'Describe the format, length, and structure of the response.',placeholder:'Return a Markdown table with…',color:'#5C6784'},
- {id:'tone',name:'Tone & style',icon:'◒',summary:'Make it sound like you',help:'Choose a voice that suits your audience and purpose.',placeholder:'Warm, direct, and easy to understand…',color:'#4CB963'},
- {id:'examples',name:'Examples',icon:'◫',summary:'Show what good looks like',help:'Add a sample input, desired response, or reference style.',placeholder:'For example, given… I would expect…',color:'#5C6784'},
- {id:'review',name:'Success criteria',icon:'✓',summary:'Define a job well done',help:'How will you evaluate the response? What must be true?',placeholder:'A successful answer should… If information is missing, ask me…',color:'#157F1F'}
-];
-const $ = s => document.querySelector(s);
-const escapeHTML = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let blocks = [], name = 'Untitled prompt', mode = 'preview', saveAvailable = true;
-try { const saved=JSON.parse(localStorage.getItem('promptly-draft')); if(saved && Array.isArray(saved.blocks)){ blocks=saved.blocks.filter(b=>definitions.some(d=>d.id===b.type)&&typeof b.value==='string').map(b=>({key:crypto.randomUUID(),type:b.type,value:b.value})); name=typeof saved.name==='string'?saved.name.slice(0,100):name; } else blocks=['role','task','context'].map(type=>({key:crypto.randomUUID(),type,value:''})); if(localStorage.getItem('promptly-palette')==='midnight')document.body.classList.add('midnight'); } catch { blocks=['role','task','context'].map(type=>({key:crypto.randomUUID(),type,value:''})); }
-$('#prompt-name').value=name;
-function notify(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(notify.timer);notify.timer=setTimeout(()=>$('#toast').classList.remove('show'),3000);}
-function save(){try{localStorage.setItem('promptly-draft',JSON.stringify({name,blocks}));$('#save-status').textContent='● Saved on this device';}catch{$('#save-status').textContent='Draft in memory · export to keep it';saveAvailable=false;}}
-function markdown(){const filled=blocks.filter(b=>b.value.trim());if(!filled.length)return '';return '# '+(name.trim()||'Untitled prompt')+'\n\n'+filled.map(b=>'## '+definitions.find(d=>d.id===b.type).name+'\n\n'+b.value.trim()).join('\n\n')+'\n';}
-function updatePreview(){const text=markdown();const filled=blocks.filter(b=>b.value.trim());$('#block-count').textContent=filled.length+' / '+blocks.length+' blocks filled';$('#word-count').textContent=(text.trim()?text.trim().split(/\s+/).length:0)+' words';$('#copy').disabled=!text;$('#download').disabled=!text;if(!text){$('#preview-output').innerHTML='<div class="empty"><span>▦</span>Your intention starts here.<br>Fill in a block and your prompt<br>will take shape as you type.</div>';return;}if(mode==='markdown')$('#preview-output').innerHTML='<pre>'+escapeHTML(text)+'</pre>';else $('#preview-output').innerHTML='<h2>'+escapeHTML(name.trim()||'Untitled prompt')+'</h2>'+filled.map(b=>'<section><h3>'+escapeHTML(definitions.find(d=>d.id===b.type).name)+'</h3><p>'+escapeHTML(b.value.trim())+'</p></section>').join('');}
-function renderLibrary(){const search=$('#block-search').value.toLowerCase();$('#block-library').innerHTML=definitions.filter(d=>(d.name+' '+d.summary).toLowerCase().includes(search)).map(d=>'<button class="library-block" data-add="'+d.id+'" aria-label="Add '+d.name+' block"><span class="lib-icon">'+d.icon+'</span><span><strong>'+d.name+'</strong><small>'+d.summary+'</small></span><b>＋</b></button>').join('')||'<p class="empty">No matching blocks.</p>';}
-function renderBlocks(){ $('#composition').innerHTML=blocks.length?blocks.map((b,i)=>{const d=definitions.find(d=>d.id===b.type);return '<article class="prompt-block" style="--block-color:'+d.color+'"><div class="block-header"><span>'+d.icon+'</span><h3><label for="field-'+b.key+'">'+d.name+'</label></h3><div class="block-tools"><button data-move="-1" data-key="'+b.key+'" aria-label="Move '+d.name+' up" '+(i===0?'disabled':'')+'>↑</button><button data-move="1" data-key="'+b.key+'" aria-label="Move '+d.name+' down" '+(i===blocks.length-1?'disabled':'')+'>↓</button><button data-remove="'+b.key+'" aria-label="Remove '+d.name+'">×</button></div></div><p id="help-'+b.key+'">'+d.help+'</p><textarea id="field-'+b.key+'" data-field="'+b.key+'" aria-describedby="help-'+b.key+'" placeholder="'+d.placeholder+'">'+escapeHTML(b.value)+'</textarea></article>';}).join(''):'<div class="empty"><span>＋</span>A blank canvas, full of possibility.<br>Choose a block from the library to begin.</div>';updatePreview();}
-$('#block-library').addEventListener('click',e=>{const button=e.target.closest('[data-add]');if(!button)return;const b={key:crypto.randomUUID(),type:button.dataset.add,value:''};blocks.push(b);renderBlocks();save();$('#field-'+b.key).focus();});
-$('#composition').addEventListener('input',e=>{if(!e.target.dataset.field)return;const block=blocks.find(b=>b.key===e.target.dataset.field);block.value=e.target.value;updatePreview();save();});
-$('#composition').addEventListener('click',e=>{const remove=e.target.closest('[data-remove]');const move=e.target.closest('[data-move]');if(remove){const i=blocks.findIndex(b=>b.key===remove.dataset.remove);blocks.splice(i,1);renderBlocks();save();const next=blocks[Math.min(i,blocks.length-1)];if(next)$('#field-'+next.key).focus();else $('#add-hint').focus();}if(move){const i=blocks.findIndex(b=>b.key===move.dataset.key);const j=i+Number(move.dataset.move);if(j<0||j>=blocks.length)return;[blocks[i],blocks[j]]=[blocks[j],blocks[i]];renderBlocks();save();$('#field-'+move.dataset.key).focus();}});
-$('#prompt-name').addEventListener('input',e=>{name=e.target.value;updatePreview();save();});$('#block-search').addEventListener('input',renderLibrary);
-$('#clear').onclick=()=>{if(blocks.some(b=>b.value.trim())&&!confirm('Clear this draft? Export it first if you want to keep a copy.'))return;blocks=[];renderBlocks();save();};
-$('#example').onclick=()=>{if(blocks.some(b=>b.value.trim())&&!confirm('Replace your current draft with the example?'))return;name='A welcoming pottery studio homepage';$('#prompt-name').value=name;const values={role:'You are an experienced website copywriter who makes new visitors feel welcome.',task:'Write a homepage introduction for a neighborhood pottery studio.',context:'The studio offers small-group classes for complete beginners. Our audience is adults looking for a creative break and a friendly community.',constraints:'Keep the paragraph under 80 words. Avoid jargon and exaggerated promises. Do not invent prices or class schedules.',output:'Return one headline and one short introductory paragraph in Markdown.',tone:'Warm, inviting, and grounded. Use simple language.'};blocks=Object.entries(values).map(([type,value])=>({key:crypto.randomUUID(),type,value}));renderBlocks();save();notify('Example loaded. Make it your own.');};
-$('#add-hint').onclick=()=>{$('#block-search').focus();$('#block-search').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});};
-function previewMode(value){mode=value;$('#rendered-tab').classList.toggle('selected',value==='preview');$('#markdown-tab').classList.toggle('selected',value==='markdown');$('#rendered-tab').setAttribute('aria-pressed',value==='preview');$('#markdown-tab').setAttribute('aria-pressed',value==='markdown');updatePreview();}$('#rendered-tab').onclick=()=>previewMode('preview');$('#markdown-tab').onclick=()=>previewMode('markdown');
-$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(markdown());notify('Prompt copied. Take it to your favorite AI.');}catch{previewMode('markdown');const range=document.createRange();range.selectNodeContents($('#preview-output'));const selection=getSelection();selection.removeAllRanges();selection.addRange(range);notify('Clipboard unavailable. Your Markdown is selected for manual copying.');}};
-$('#download').onclick=()=>{const url=URL.createObjectURL(new Blob([markdown()],{type:'text/markdown;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=(name.trim().replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').toLowerCase().slice(0,80)||'prompt')+'.md';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notify('Markdown exported. Your intent, ready to go.');};
-function paletteLabel(){const dark=document.body.classList.contains('midnight');$('#palette').setAttribute('aria-label','Switch to '+(dark?'daylight':'midnight')+' palette');$('#palette').setAttribute('aria-pressed',dark);$('#palette').title=dark?'Try daylight':'Try midnight';}$('#palette').onclick=()=>{document.body.classList.toggle('midnight');try{localStorage.setItem('promptly-palette',document.body.classList.contains('midnight')?'midnight':'daylight');}catch{}paletteLabel();};
-function route(){const target=location.hash.slice(1);const page=['home','builder','about'].includes(target)?target:'home';document.querySelectorAll('.page').forEach(el=>el.hidden=el.id!==page);document.querySelectorAll('[data-page]').forEach(el=>{el.classList.toggle('active',el.dataset.page===page);if(el.dataset.page===page)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});document.title=(page==='builder'?'The builder':page==='about'?'What is Promptly?':'Build your intent')+' — Promptly';window.scrollTo(0,0);}window.addEventListener('hashchange',route);renderLibrary();renderBlocks();paletteLabel();route();save();
+import { definitions, block, draft, clone, markdown, guidance, templates, History, savePrompt, duplicatePrompt, backup, importBackup } from './core.js';
+import { Persistence, STORAGE_KEY } from './persistence.js';
+
+const $ = selector => document.querySelector(selector);
+const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const history = new History();
+let mode = 'preview';
+let state;
+let renameId;
+let storage;
+try { storage = localStorage; } catch { storage = { getItem() { throw new Error('Storage denied.'); } }; }
+const persistence = new Persistence(storage, navigator.locks, renderStatus);
+state = persistence.load();
+
+function notify(message) {
+  $('#toast').textContent = message;
+  $('#toast').classList.add('show');
+  clearTimeout(notify.timer);
+  notify.timer = setTimeout(() => $('#toast').classList.remove('show'), 6000);
+}
+function renderStatus() {
+  const labels = {
+    saved: 'Saved in this browser', unsaved: persistence.dirty ? 'Unsaved changes' : 'Not saved yet',
+    unavailable: 'Storage unavailable · download a backup',
+    conflict: 'Another tab changed this workspace · resolve below',
+    recovery: 'Saved data could not be read · original data preserved',
+  };
+  $('#save-status').textContent = labels[persistence.status];
+  $('#recovery').hidden = persistence.status !== 'recovery';
+  $('#conflict').hidden = persistence.status !== 'conflict';
+  $('#storage-note').hidden = persistence.status !== 'unavailable';
+}
+function changed() {
+  persistence.edit();
+  updatePreview();
+  $('#undo').disabled = !history.items.length;
+}
+function replaceDraft(next) {
+  history.remember(state.draft);
+  state.draft = clone(next);
+  render();
+  changed();
+  $('#prompt-name').focus();
+}
+function renderBlocks() {
+  $('#composition').innerHTML = state.draft.blocks.map(b => {
+    const d = definitions.find(d => d.id === b.type);
+    return `<article class="prompt-block"><div class="block-header"><h3><label for="field-${escape(b.key)}">${d.name}</label></h3><div class="block-tools"><button data-remove="${escape(b.key)}" aria-label="Remove ${d.name}">×</button></div></div><p id="help-${escape(b.key)}">${d.help}</p><textarea id="field-${escape(b.key)}" data-field="${escape(b.key)}" aria-describedby="help-${escape(b.key)}" maxlength="100000" placeholder="${d.help}">${escape(b.value)}</textarea></article>`;
+  }).join('') || '<p class="empty">Add a task or choose a template to begin.</p>';
+}
+function renderCollection() {
+  const archived = $('#show-archived').checked;
+  $('#prompt-list').innerHTML = state.prompts.filter(p => p.archived === archived).map(p => `<article class="saved-prompt"><strong>${escape(p.name || 'Untitled prompt')}</strong><div><button data-open="${escape(p.id)}">Open</button><button data-rename="${escape(p.id)}">Rename</button><button data-duplicate="${escape(p.id)}">Duplicate</button><button data-archive="${escape(p.id)}">${p.archived ? 'Restore' : 'Archive'}</button></div></article>`).join('') || '<p>No prompts in this view. Save a copy of your brief to start a collection.</p>';
+}
+function render() {
+  $('#prompt-name').value = state.draft.name;
+  renderBlocks();
+  renderCollection();
+  updatePreview();
+  $('#undo').disabled = !history.items.length;
+}
+function updatePreview() {
+  const content = markdown(state.draft);
+  const filled = state.draft.blocks.filter(b => b.value.trim());
+  $('#copy').disabled = !content;
+  $('#copy-bottom').disabled = !content;
+  $('#download').disabled = !content;
+  $('#preview-output').innerHTML = !content ? '<p class="empty">Your prompt appears here as you write.</p>' : mode === 'markdown' ? `<pre>${escape(content)}</pre>` : `<h2>${escape(state.draft.name || 'Untitled prompt')}</h2>` + filled.map(b => `<section><h3>${definitions.find(d => d.id === b.type).name}</h3><p>${escape(b.value.trim())}</p></section>`).join('');
+  $('#guidance').textContent = guidance(state.draft).join(' ');
+}
+function setView(next) {
+  $('#canvas').hidden = next !== 'editor';
+  $('#preview').hidden = next !== 'preview';
+  for (const value of ['editor', 'preview']) $('#view-' + value).setAttribute('aria-pressed', value === next);
+}
+function previewMode(next) {
+  mode = next;
+  $('#rendered-tab').setAttribute('aria-pressed', mode === 'preview');
+  $('#markdown-tab').setAttribute('aria-pressed', mode === 'markdown');
+  updatePreview();
+}
+function download(content, filename, type = 'application/json') {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function report(error) { notify(error.message || 'Action failed. Download a backup to keep your work.'); }
+
+$('#block-library').innerHTML = definitions.map((d, i) => `<button class="library-block" data-add="${d.id}"><strong>${d.name}${i > 3 ? ' (optional)' : ''}</strong><span aria-hidden="true">＋</span></button>`).join('');
+$('#block-library').onclick = event => {
+  const button = event.target.closest('[data-add]');
+  if (!button) return;
+  if (state.draft.blocks.length >= 100) { notify('Maximum 100 blocks per brief.'); return; }
+  const next = block(button.dataset.add);
+  state.draft.blocks.push(next);
+  renderBlocks();
+  changed();
+  $('#details-drawer').open = false;
+  $('#field-' + CSS.escape(next.key)).focus();
+};
+$('#composition').oninput = event => {
+  const item = state.draft.blocks.find(b => b.key === event.target.dataset.field);
+  if (!item) return;
+  item.value = event.target.value;
+  changed();
+};
+$('#composition').onclick = event => {
+  const button = event.target.closest('[data-remove]');
+  if (!button) return;
+  history.remember(state.draft);
+  const index = state.draft.blocks.findIndex(b => b.key === button.dataset.remove);
+  state.draft.blocks.splice(index, 1);
+  renderBlocks();
+  changed();
+  const next = state.draft.blocks[Math.min(index, state.draft.blocks.length - 1)];
+  (next ? $('#field-' + CSS.escape(next.key)) : $('#add-details')).focus();
+  notify('Block removed. Undo is available.');
+};
+$('#prompt-name').oninput = event => { state.draft.name = event.target.value; changed(); };
+$('#clear').onclick = () => { replaceDraft({ ...state.draft, blocks: [] }); notify('Brief cleared. Undo is available.'); };
+$('#new-prompt').onclick = () => { setView('editor'); replaceDraft(draft()); notify('New brief started. Undo restores your previous brief.'); };
+$('#undo').onclick = () => {
+  const previous = history.undo();
+  if (!previous) return;
+  state.draft = previous;
+  render();
+  changed();
+  setView('editor');
+  $('#prompt-name').focus();
+  notify('Previous brief restored.');
+};
+$('#templates').onclick = event => {
+  const button = event.target.closest('[data-template]');
+  if (!button) return;
+  const template = clone(templates[button.dataset.template]);
+  template.blocks = template.blocks.map(b => block(b.type, b.value));
+  setView('editor');
+  replaceDraft(template);
+  notify('Template loaded. Replace bracketed placeholders. Undo restores your previous brief.');
+};
+$('#save-prompt').onclick = () => {
+  try { savePrompt(state); renderCollection(); changed(); notify('Copy added to your collection. Further edits stay in your working brief; save another copy when ready.'); }
+  catch (error) { report(error); }
+};
+$('#show-archived').onchange = renderCollection;
+$('#prompt-list').onclick = event => {
+  const button = event.target.closest('button');
+  if (!button) return;
+  const [action, promptId] = Object.entries(button.dataset)[0];
+  const saved = state.prompts.find(p => p.id === promptId);
+  if (!saved) return;
+  try {
+    if (action === 'open') { setView('editor'); replaceDraft({ name: saved.name, blocks: saved.blocks }); notify('Opened a working copy. Undo restores the previous brief.'); return; }
+    if (action === 'rename') {
+      renameId = saved.id;
+      $('#rename-name').value = saved.name;
+      $('#rename-name').setCustomValidity('');
+      $('#rename-dialog').showModal();
+      $('#rename-name').focus();
+      $('#rename-name').select();
+      return;
+    }
+    if (action === 'duplicate') duplicatePrompt(state, promptId);
+    if (action === 'archive') saved.archived = !saved.archived;
+    renderCollection();
+    changed();
+    $('#collection-heading').focus();
+    notify('Collection updated.');
+  } catch (error) { report(error); }
+};
+$('#rename-form').onsubmit = event => {
+  event.preventDefault();
+  if (event.submitter?.value === 'cancel') { $('#rename-dialog').close(); return; }
+  const name = $('#rename-name').value.trim();
+  if (!name) { $('#rename-name').setCustomValidity('Enter a name.'); $('#rename-name').reportValidity(); return; }
+  const saved = state.prompts.find(p => p.id === renameId);
+  if (saved) { saved.name = name; renderCollection(); changed(); }
+  $('#rename-dialog').close();
+  $('#collection-heading').focus();
+  notify('Saved prompt renamed.');
+};
+$('#rename-name').oninput = event => event.target.setCustomValidity('');
+$('#rename-cancel').onclick = () => $('#rename-dialog').close();
+$('#backup').onclick = () => download(backup(state), 'promptly-backup.json');
+$('#import-file').onchange = async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    if (file.size > 10000000) throw new Error('Backup is too large (maximum 10 MB).');
+    importBackup(state, await file.text());
+    renderCollection();
+    changed();
+    notify('Backup added to the collection, including its working brief. Existing work is preserved.');
+  } catch (error) { report(error); }
+  event.target.value = '';
+};
+$('#raw-backup').onclick = () => download(persistence.raw, 'promptly-unreadable-storage.txt', 'text/plain');
+$('#use-latest').onclick = () => $('#latest-dialog').showModal();
+$('#latest-cancel').onclick = () => $('#latest-dialog').close();
+$('#latest-form').onsubmit = async event => {
+  event.preventDefault();
+  $('#latest-dialog').close();
+  if (event.submitter?.value === 'cancel') return;
+  try { await persistence.flush(); state = persistence.useLatest(); history.items = []; render(); setView('editor'); $('#prompt-name').focus(); notify('Latest workspace loaded.'); }
+  catch (error) { report(error); }
+};
+$('#keep-both').onclick = async () => {
+  try { await persistence.flush(); state = await persistence.keepBoth(); history.items = []; render(); notify('Latest workspace loaded; this tab’s brief and collection are preserved as local copies.'); }
+  catch (error) { report(error); }
+};
+$('#view-editor').onclick = () => setView('editor');
+$('#view-preview').onclick = () => setView('preview');
+$('#rendered-tab').onclick = () => previewMode('preview');
+$('#markdown-tab').onclick = () => previewMode('markdown');
+$('#copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(markdown(state.draft)); notify('Prompt copied.'); }
+  catch {
+    setView('preview');
+    previewMode('markdown');
+    $('#preview-output').focus();
+    const range = document.createRange();
+    range.selectNodeContents($('#preview-output'));
+    const selection = getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    notify('Clipboard unavailable. Markdown is selected: use your device’s Copy command.');
+  }
+};
+$('#copy-bottom').onclick = $('#copy').onclick;
+$('#download').onclick = () => download(markdown(state.draft), (state.draft.name.replace(/[^a-z0-9]+/gi, '-').slice(0, 80) || 'prompt') + '.md', 'text/markdown;charset=utf-8');
+
+function paletteLabel() {
+  const dark = document.body.classList.contains('midnight');
+  $('#palette').setAttribute('aria-label', 'Switch to ' + (dark ? 'daylight' : 'midnight') + ' palette');
+  $('#palette').setAttribute('aria-pressed', dark);
+}
+try { if (storage.getItem('promptly-palette') === 'midnight') document.body.classList.add('midnight'); } catch { /* Optional preference. */ }
+$('#palette').onclick = () => {
+  document.body.classList.toggle('midnight');
+  try { storage.setItem('promptly-palette', document.body.classList.contains('midnight') ? 'midnight' : 'daylight'); } catch { /* Palette remains usable in memory. */ }
+  paletteLabel();
+};
+function route(focus = false) {
+  const page = ['home', 'builder', 'about'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+  document.querySelectorAll('.page').forEach(el => { el.hidden = el.id !== page; });
+  document.querySelectorAll('[data-page]').forEach(el => {
+    if (el.dataset.page === page) el.setAttribute('aria-current', 'page');
+    else el.removeAttribute('aria-current');
+  });
+  document.title = (page === 'builder' ? 'Edit your brief' : 'Promptly') + ' — Promptly';
+  if (focus) { const heading = $('#' + page + ' h1'); heading.tabIndex = -1; heading.focus(); }
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', () => route(true));
+window.addEventListener('storage', event => {
+  if (event.key === STORAGE_KEY || event.key === null) persistence.externalChange();
+});
+window.addEventListener('pagehide', () => persistence.flush());
+document.addEventListener('visibilitychange', () => { if (document.hidden) persistence.flush(); });
+window.addEventListener('beforeunload', event => {
+  if (persistence.dirty || persistence.status === 'conflict') {
+    persistence.flush(); event.preventDefault(); event.returnValue = '';
+  }
+});
+render();
+setView('editor');
+paletteLabel();
+route();
+if (persistence.dirty) persistence.flush();
