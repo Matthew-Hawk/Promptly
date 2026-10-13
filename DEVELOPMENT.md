@@ -55,13 +55,14 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/style.css` | Palettes, responsive layout, focus, and motion |
 | `dist/library.js` | Task categories, role tags, questions and starter templates |
 | `dist/core.js` | Validation, variables, profiles, versions, migration, collections, Undo, backups, Markdown |
+| `dist/focus.js` | Focused question navigation and expandable builder steps; presentation only |
 | `dist/motion.js` | Viewport entrances, dynamic content, ambient pause and reduced-motion preferences |
 | `dist/persistence.js` | Debounce, revision checks, Web Locks, and conflict resolution |
 | `dist/app.js` | DOM rendering, event handling, accessible focus, clipboard, downloads |
 | `dist/social-preview.png` | Homepage image for shared links (1200 × 630) |
 | `serve.cjs` | Loopback static development server |
 
-The deployable artifact is the complete `dist/` directory, including all five JavaScript modules. A reproducible artifact package can be made from the repository root:
+The deployable artifact is the complete `dist/` directory, including all six JavaScript modules. A reproducible artifact package can be made from the repository root:
 
 ```sh
 npm run check
@@ -104,3 +105,11 @@ The background uses existing green, lime, mint and slate tokens for slow gradien
 The headless browser runner additionally verifies real entrance keyframes, keyboard pause, pause persistence, reduced-motion behavior, steady typing previews, and layout bounds at 320, 390 and 1280 pixels. Optional screenshots are written to `SCREENSHOT_DIR`.
 
 Homepage reveals include the header controls, individual hero copy/actions and illustration pieces, lower section surfaces and their content, and footer items. Observer batches are sorted by visual top/left position with a 55 ms stagger and 650 ms fade. Offscreen homepage items stay transparent until their own viewport entry; layout space is retained. Each item reveals once per page visit, with a fresh cascade when returning home. Keyboard focus immediately reveals its containing items, and reduced motion shows all pending content without animation. The browser runner checks cascade ordering and offscreen footer visibility before/after scrolling.
+
+## Focused editing flow
+
+The builder now keeps three steps visible as summaries: Make it yours, Shape the instructions, and Review & save. Opening a step minimizes its peers. Guided questions use the same stored variables and field IDs, but only one question expands into a larger text area; other questions show concise answer summaries. Previous/Next controls switch questions without requiring an answer, and the final Next opens the instruction editor. Instructions likewise expand one section at a time. Blank and legacy briefs without guided fields start with the instruction editor.
+
+Templates, completeness messages and optional profile/variable/policy settings stay compact until opened. Check links expand the correct step and question before focusing the input. Adding/removing a block also opens its editor; Undo and saved-data behavior remain unchanged. Review & save contains the existing saving actions and a direct preview button. Live preview remains optional on wide screens. Focus state is presentation only and is not included in stored drafts or backups. Smooth transitions respect reduced motion.
+
+Browser checks exercise Next/Previous, single expanded questions/steps, preserved values, completeness jumps, preview return, and a desktop page-height bound for the guided flow. Mobile and desktop screenshots were reviewed. The existing schema, migration, version, backup, conflict and storage-error tests are unchanged.

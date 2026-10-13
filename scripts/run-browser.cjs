@@ -42,6 +42,8 @@ const server = spawn(process.execPath,['scripts/browser-checks.cjs'],{stdio:'inh
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.waitForFunction(() => !document.querySelector('#ambient-toggle').disabled);
  await page.goto('http://127.0.0.1:5175/fixture.html#builder');
+ await page.locator('#instructions-stage > summary').click();
+ await page.locator('#section-nav button').first().click();
  await page.locator('#composition textarea').first().fill('Typing stays steady');
  assert.equal(await page.locator('#preview-output').evaluate(el => el.getAnimations({subtree:true}).length),0);
  for (const width of [320,390,1280]) {
@@ -49,6 +51,31 @@ const server = spawn(process.execPath,['scripts/browser-checks.cjs'],{stdio:'inh
    assert(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth),'Motion layout overflows at '+width);
  }
  console.log('PASS: Steady preview while typing and 320/390/1280px layout bounds');
+ await page.setViewportSize({width:1280,height:900});
+ await page.locator('#brief-details > summary').click();
+ await page.locator('[data-question=audience] > summary').click();
+ await page.locator('#var-audience').fill('Operations team');
+ assert.equal(await page.locator('#variables > details[open]').count(),1);
+ await page.locator('#question-next').click();
+ assert.equal(await page.locator('#variables > details[open]').getAttribute('data-question'),'facts');
+ assert.equal(await page.locator('#var-audience').inputValue(),'Operations team');
+ await page.locator('#question-back').click();
+ assert.equal(await page.locator('#variables > details[open]').getAttribute('data-question'),'audience');
+ await page.locator('#checks-panel > summary').click();
+ await page.locator('#guidance [data-jump="var-destination"]').click();
+ assert.equal(await page.locator('#variables > details[open]').getAttribute('data-question'),'destination');
+ assert.equal(await page.locator('#focus-flow > details[open]').count(),1);
+ assert.equal(await page.locator('[data-stage=finish-stage]').count(),1);
+ await page.locator('#finish-stage > summary').click();
+ assert.equal(await page.locator('#focus-flow > details[open]').getAttribute('id'),'finish-stage');
+ await page.locator('#review-preview').click();
+ assert.equal(await page.locator('#canvas').isVisible(),false);
+ await page.locator('#view-editor').click();
+ await page.locator('#brief-details > summary').click();
+ assert.equal(await page.locator('#var-audience').inputValue(),'Operations team');
+ await page.locator('#checks-panel > summary').click();
+ assert(await page.evaluate(() => document.documentElement.scrollHeight < 2200),'Focused builder remains too long');
+ console.log('PASS: Focused questions, next/back, collapsed content preservation, check jumps and review flow');
  if (process.env.SCREENSHOT_DIR) {
   await page.setViewportSize({width:1400,height:1000});
   if (!await page.locator('body').evaluate(el => el.classList.contains('midnight'))) await page.locator('#palette').click();

@@ -2,7 +2,7 @@
 // Preview text and completeness checks deliberately stay steady while typing.
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const homeTargets = 'header .brand, header nav > a, .header-actions > button, #home .hero-copy > :not(.hero-actions), #home .hero-copy .hero-actions > a, #home .hero-art > *, #home > section:not(.hero), #home > footer, #home .starting-points > :not(.hero-actions), #home .starting-points .hero-actions > a, #home .process > .eyebrow, #home .process > div > *, #home .human > .human-symbol, #home .human > div > *, #home .human > a, #home footer > *';
-const targets = '[data-home-reveal], .page:not(#home) > section, .builder-controls, .workshop > section, .collection, .template-card, .prompt-block, .saved-prompt, #variables > label';
+const targets = '[data-home-reveal], .page:not(#home) > section, .builder-controls, .workshop > section, .collection, .template-card, .prompt-block, .saved-prompt, #variables > .question-card';
 const homeElements = [...document.querySelectorAll(homeTargets)];
 homeElements.forEach(element => element.setAttribute('data-home-reveal',''));
 const observed = new WeakSet();

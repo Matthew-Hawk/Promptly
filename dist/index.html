@@ -341,8 +341,7 @@
         <p>
           Browse by task, optionally filter by your role, then tailor the questions and sections. Role filters never assign a role to the AI.
         </p>
-        <details id="template-browser" open><summary>Browse workplace templates</summary><div class="filters"><label>Task category<select id="category-filter"></select></label><label>Your role<select id="role-filter"></select></label><label>Search templates<input id="template-search" type="search" placeholder="Search tasks and deliverables"></label></div>
-        <p id="selected-template" role="status"></p>
+        <p id="selected-template" role="status"></p><details id="template-browser"><summary>Browse workplace templates</summary><div class="filters"><label>Task category<select id="category-filter"></select></label><label>Your role<select id="role-filter"></select></label><label>Search templates<input id="template-search" type="search" placeholder="Search tasks and deliverables"></label></div>
         <div id="templates">
           <button data-template="launch">
             Launch email
@@ -379,7 +378,7 @@
       </div>
       <div id="toast" role="status" aria-live="polite">
       </div>
-      <div id="guidance" class="guidance" aria-label="Completeness checks"></div>
+      <details id="checks-panel" class="compact-checks"><summary id="checks-summary">Review completeness checks</summary><div id="guidance" class="guidance" aria-label="Completeness checks"></div></details>
       <div class="workshop">
         <section class="canvas" id="canvas" aria-labelledby="editor-heading">
           <div class="panel-title">
@@ -396,15 +395,18 @@
               Clear brief
             </button>
           </div>
+          <div id="focus-flow"><details id="brief-details" class="focus-stage" open><summary><span class="step-number">01</span><span><strong>Make it yours</strong><small id="details-summary">Add the context that matters.</small></span></summary><div class="stage-content">
           <section class="guided-panel">
-            <h3>Guided values</h3><p>Fields replace named {{variables}} wherever they appear. Advanced edits keep the tokens or replace them with fixed text. Changing a field only changes its tokens; it never rewrites your sections.</p>
+            <h3>One detail at a time</h3><p>Open a question to give it your full attention. Everything else stays in a compact summary.</p><div id="question-progress" role="status"></div>
             <div id="variables"></div>
-            <details><summary>Add a reusable variable</summary><label>Variable key<input id="variable-key" maxlength="50" placeholder="project_name"></label><label>Label<input id="variable-label" maxlength="100" placeholder="Project name"></label><button id="add-variable">Add variable</button></details>
-            <label>Missing-information policy<select id="missing-policy"><option value="ask">Ask clarifying questions before drafting</option><option value="flag">Draft using facts and flag missing information</option><option value="placeholders">Leave placeholders where facts are missing</option></select></label>
+            <div class="question-controls"><button id="question-back">← Previous detail</button><button id="question-next" class="primary">Next detail →</button></div><details id="extra-options"><summary>More options · profiles, variables & policies</summary><details><summary>How guided values work</summary><p>Fields fill named {{variables}} wherever they appear. Keep a token in the advanced editor to stay connected, or replace it with fixed text. Field changes never overwrite section edits.</p></details><details><summary>Add a reusable variable</summary><label>Variable key<input id="variable-key" maxlength="50" placeholder="project_name"></label><label>Label<input id="variable-label" maxlength="100" placeholder="Project name"></label><button id="add-variable">Add variable</button></details>
+            <details class="optional-settings"><summary>AI instructions & source preferences</summary><label>Missing-information policy<select id="missing-policy"><option value="ask">Ask clarifying questions before drafting</option><option value="flag">Draft using facts and flag missing information</option><option value="placeholders">Leave placeholders where facts are missing</option></select></label>
             <p>This instructs the eventual AI; it does not guarantee model behavior.</p>
             <label class="archive-label"><input type="checkbox" id="outside-info"> Allow outside information (identify additions and sources)</label><p>References are labeled content, separate from instructions. Delimiters do not eliminate prompt-injection risk. Pasted URLs are not fetched.</p>
-            <details><summary>Context & voice profiles (optional)</summary><p>Include a profile explicitly. Its editable snapshot stays with this brief until you refresh it.</p><div id="included-profiles"></div><label>Saved profile<select id="profile-select"></select></label><button id="include-profile">Include / refresh selected profile</button><button id="edit-profile">Edit selected profile</button><button id="new-profile">New profile</button></details>
-          </section>
+            </details><details><summary>Context & voice profiles (optional)</summary><p>Include a profile explicitly. Its editable snapshot stays with this brief until you refresh it.</p><div id="included-profiles"></div><label>Saved profile<select id="profile-select"></select></label><button id="include-profile">Include / refresh selected profile</button><button id="edit-profile">Edit selected profile</button><button id="new-profile">New profile</button></details>
+          </details></section>
+</div><button class="stage-next" data-stage="instructions-stage">Customize instructions →</button></details>
+          <details id="instructions-stage" class="focus-stage"><summary><span class="step-number">02</span><span><strong>Shape the instructions</strong><small id="instructions-summary">Your template is ready to customize.</small></span></summary><div class="stage-content">
           <nav id="section-nav" aria-label="Brief sections"></nav>
           <h3>Advanced section editor</h3><p class="local-note">Every instruction is editable. Remove or add sections as needed.</p>
           <div id="composition">
@@ -419,13 +421,15 @@
             <div id="block-library">
             </div>
           </details>
+          </div><button class="stage-next" data-stage="finish-stage">Review & save →</button></details>
+          <details id="finish-stage" class="focus-stage"><summary><span class="step-number">03</span><span><strong>Review & save</strong><small>Preview, copy, or keep it for next time.</small></span></summary><div class="stage-content"><button id="review-preview">Preview my prompt ↗</button>
           <button id="save-prompt" class="button secondary">
             Save as new prompt
           </button>
           <p class="local-note">
             Your working draft autosaves. Save as new creates a completed prompt; Update adds a saved version. Templates are reusable starting points with separate working copies.
           </p>
-          <button id="update-prompt">Update saved prompt</button><button id="save-template">Save as reusable template</button>
+          <button id="update-prompt">Update saved prompt</button><button id="save-template">Save as reusable template</button></div></details></div>
         </section>
         <section class="preview" id="preview" hidden aria-labelledby="preview-heading">
           <div class="panel-title">

@@ -2,6 +2,7 @@ import { definitions, block, draft, clone, markdown, checks, templates, History,
 import { categories, roles } from './library.js';
 import { Persistence, STORAGE_KEY } from './persistence.js';
 import './motion.js';
+import { focusField, refreshFocusFlow, openStage } from './focus.js';
 
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -51,6 +52,7 @@ function replaceDraft(next) {
   render();
   changed();
   $('#template-browser').open = false;
+  openStage(state.draft.variables?.length ? 'brief-details' : 'instructions-stage');
   $('#prompt-name').focus();
 }
 function requestReplacement(next) {
@@ -60,10 +62,12 @@ function requestReplacement(next) {
   } else { setView('editor'); replaceDraft(next); }
 }
 function renderBlocks() {
-  $('#composition').innerHTML = state.draft.blocks.map(b => {
+  const opened = $('#composition details[open]')?.closest('.prompt-block')?.id;
+  $('#composition').innerHTML = state.draft.blocks.map((b,index) => {
     const d = definitions.find(d => d.id === b.type);
-    return `<article class="prompt-block" id="section-${escape(b.key)}"><details open><summary>${d.name} · ${escape(b.value.replace(/\s+/g,' ').slice(0,70) || 'Empty section')}</summary><div class="block-header"><h3><label for="field-${escape(b.key)}">${d.name}</label></h3><div class="block-tools"><button data-remove="${escape(b.key)}" aria-label="Remove ${d.name}">×</button></div></div><p id="help-${escape(b.key)}">${d.help}</p>${['notes','original','style'].includes(b.type) ? `<label class="source-usage">Reference supplies<select data-usage="${escape(b.key)}">${['facts','style','both'].map(u => `<option ${u === (b.usage ?? (b.type === 'style' ? 'style' : 'facts')) ? 'selected' : ''}>${u}</option>`).join('')}</select></label>` : ''}<textarea id="field-${escape(b.key)}" data-field="${escape(b.key)}" aria-describedby="help-${escape(b.key)}" maxlength="100000" placeholder="${d.help}">${escape(b.value)}</textarea></details></article>`;
+    return `<article class="prompt-block" id="section-${escape(b.key)}"><details ${opened ? opened === "section-"+b.key ? "open" : "" : index === 0 ? "open" : ""}><summary>${d.name} · ${escape(b.value.replace(/\s+/g,' ').slice(0,70) || 'Empty section')}</summary><div class="block-header"><h3><label for="field-${escape(b.key)}">${d.name}</label></h3><div class="block-tools"><button data-remove="${escape(b.key)}" aria-label="Remove ${d.name}">×</button></div></div><p id="help-${escape(b.key)}">${d.help}</p>${['notes','original','style'].includes(b.type) ? `<label class="source-usage">Reference supplies<select data-usage="${escape(b.key)}">${['facts','style','both'].map(u => `<option ${u === (b.usage ?? (b.type === 'style' ? 'style' : 'facts')) ? 'selected' : ''}>${u}</option>`).join('')}</select></label>` : ''}<textarea id="field-${escape(b.key)}" data-field="${escape(b.key)}" aria-describedby="help-${escape(b.key)}" maxlength="100000" placeholder="${d.help}">${escape(b.value)}</textarea></details></article>`;
   }).join('') || '<p class="empty">Add a task or choose a template to begin.</p>';
+  $('#instructions-summary').textContent = `${state.draft.blocks.length} editable sections · keep only what helps`;
   $('#section-nav').innerHTML = state.draft.blocks.map(b => `<button data-jump="${escape(b.key)}">${definitions.find(d => d.id === b.type).name}</button>`).join('');
 }
 function renderCollection() {
@@ -78,7 +82,9 @@ function render() {
   renderCollection();
   renderGuided();
   renderTemplates();
-  $('#template-browser').open = !state.draft.templateId;
+  $('#template-browser').open = false;
+  refreshFocusFlow();
+  if (!state.draft.variables?.length) { $('#brief-details').open = false; $('#instructions-stage').open = true; $('#finish-stage').open = false; }
   updatePreview();
   $('#undo').disabled = !history.items.length && !collectionUndo;
 }
@@ -89,6 +95,7 @@ function updatePreview() {
   $('#download').disabled = !content;
   $('#preview-output').innerHTML = !content ? '<p class="empty">Your prompt appears here as you write.</p>' : mode === 'markdown' ? `<pre>${escape(content)}</pre>` : content.split(/\n\n(?=## )/).map((part,i) => { const lines = part.split('\n'); return `<section><${i ? 'h3' : 'h2'}>${escape(lines.shift().replace(/^#+ /,''))}</${i ? 'h3' : 'h2'}><p>${escape(lines.join('\n').trim())}</p></section>`; }).join('');
   $('#guidance').innerHTML = checks(state.draft).map(c => `<button data-jump="${escape(c.target)}">${escape(c.message)} →</button>`).join('') || 'No completeness checks outstanding. Review the prompt and eventual AI response.';
+  $('#checks-summary').textContent = checks(state.draft).length ? `${checks(state.draft).length} details to review · optional before exporting` : 'Ready to review · no missing details';
   $('#update-prompt').disabled = !state.prompts.some(p => p.id === state.draft.savedId && p.kind !== 'template');
 }
 function setView(next) {
@@ -125,7 +132,7 @@ $('#block-library').onclick = event => {
   renderBlocks();
   changed();
   $('#details-drawer').open = false;
-  $('#field-' + CSS.escape(next.key)).focus();
+  focusField($('#field-' + CSS.escape(next.key)));
 };
 $('#composition').oninput = event => {
   if (event.target.dataset.usage) return;
@@ -145,7 +152,7 @@ $('#composition').onclick = event => {
   renderBlocks();
   changed();
   const next = state.draft.blocks[Math.min(index, state.draft.blocks.length - 1)];
-  (next ? $('#field-' + CSS.escape(next.key)) : $('#add-details')).focus();
+  focusField(next ? $('#field-' + CSS.escape(next.key)) : $('#add-details'));
   notify('Block removed. Undo is available.');
 };
 $('#prompt-name').oninput = event => { state.draft.name = event.target.value; changed(); };
@@ -312,7 +319,8 @@ function renderTemplates() {
 }
 function renderGuided() {
  state.draft.policy ??= 'ask'; state.draft.outside ??= false;
- $('#variables').innerHTML = (state.draft.variables ?? []).map(v => `<label>${escape(v.label)}${v.required ? ' (needed)' : ''}<textarea id="var-${v.key}" data-variable="${v.key}" maxlength="100000" aria-describedby="var-help-${v.key}">${escape(v.value)}</textarea><small id="var-help-${v.key}">${escape(v.help)} · Token: {{${v.key}}}</small><button data-drop-variable="${v.key}" type="button">Remove variable</button></label>`).join('') || '<p>No guided values yet. Add a variable or choose a template; you can also write directly below.</p>';
+ $('#variables').innerHTML = (state.draft.variables ?? []).map(v => `<details class="question-card" data-question="${v.key}"><summary><strong>${escape(v.label)}</strong><span class="question-answer">${escape(v.value.trim().replace(/\s+/g,' ').slice(0,85) || 'Tap to add your context')}</span></summary><div class="question-content"><label for="var-${v.key}">${escape(v.help)}</label><textarea id="var-${v.key}" data-variable="${v.key}" maxlength="100000" aria-describedby="var-help-${v.key}" placeholder="Add what you know. You can come back to this.">${escape(v.value)}</textarea><small id="var-help-${v.key}">${v.required ? 'Recommended for this template. ' : ''}Used wherever {{${v.key}}} appears.</small><button data-drop-variable="${v.key}" type="button" class="quiet">Remove this question</button></div></details>`).join('') || '<p>No guided questions for this brief. Start with your task in Shape the instructions.</p>';
+ refreshFocusFlow();
  $('#missing-policy').value = state.draft.policy ?? 'ask';
  $('#outside-info').checked = state.draft.outside ?? false;
  const selected = $('#profile-select').value;
@@ -324,6 +332,7 @@ $('#category-filter').innerHTML = '<option value="">All tasks</option>'+categori
 $('#role-filter').innerHTML = '<option value="">All roles</option>'+roles.map(r => `<option>${escape(r)}</option>`).join('');
 for (const selector of ['#category-filter','#role-filter','#template-search']) $(selector).oninput = renderTemplates;
 for (const selector of ['#collection-search','#collection-kind','#favorites-only']) $(selector).oninput = renderCollection;
+$('#review-preview').onclick = () => {setView('preview'); $('#preview-heading').tabIndex = -1; $('#preview-heading').focus();};
 $('#my-prompts').onclick = () => { $('#collection').open = true; $('#collection-heading').focus(); $('#collection').scrollIntoView({block:'start'}); };
 $('#live-preview').onchange = () => setView(currentView);
 window.addEventListener('resize', () => setView(currentView));
@@ -336,7 +345,7 @@ $('#variables').onclick = event => {
  if (!key) return;
  rememberDraft();
  state.draft.variables = state.draft.variables.filter(v => v.key !== key);
- renderGuided(); changed(); $('#add-variable').focus(); notify('Variable removed; remaining tokens are reported by checks. Undo is available.');
+ renderGuided(); changed(); focusField($('#add-variable')); notify('Variable removed; remaining tokens are reported by checks. Undo is available.');
 };
 $('#add-variable').onclick = () => {
  try { defineVariable(state.draft,$('#variable-key').value.trim(),$('#variable-label').value.trim() || $('#variable-key').value.trim()); renderGuided(); changed(); } catch(error) { report(error); }
