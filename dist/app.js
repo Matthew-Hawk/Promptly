@@ -1,6 +1,7 @@
 import { definitions, block, draft, clone, markdown, checks, templates, History, savePrompt, duplicatePrompt, backup, importBackup, instantiate, validateDraft, paletteIsDark, defineVariable, id, includeProfile, updatePrompt, restoreVersion, attachResult } from './core.js';
 import { categories, roles } from './library.js';
 import { Persistence, STORAGE_KEY } from './persistence.js';
+import './motion.js';
 
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

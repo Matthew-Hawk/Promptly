@@ -1486,3 +1486,53 @@ button:disabled { opacity:1; color:var(--muted); background:var(--wash); border:
 /* Form boundaries and focus remain visible in both palettes. */
 input:not([type=checkbox]), textarea, select { border-color:var(--muted); }
 a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible { outline-color:var(--accent); }
+/* Soft atmosphere built from Promptly's green, lime, mint and slate palette. */
+body { isolation:isolate; }
+.header-actions { display:flex; gap:8px; align-items:center; }
+.ambient { inset:0; overflow:hidden; opacity:1; background:none; animation:none; }
+.ambient > span { position:absolute; pointer-events:none; }
+.ambient-grid { inset:-32px; background-image:radial-gradient(var(--slate) .85px,transparent .85px); background-size:28px 28px; opacity:.14; animation:grid-drift 36s linear infinite; }
+.ambient-glow { width:clamp(320px,55vw,850px); aspect-ratio:1; border-radius:50%; opacity:.13; animation:ambient-drift 38s ease-in-out infinite alternate; }
+.glow-green { top:-28%; left:-22%; background:radial-gradient(circle, var(--lime) 0%, transparent 68%); }
+.glow-mint { top:20%; right:-30%; background:radial-gradient(circle, var(--mint) 0%, transparent 68%); animation-duration:48s; animation-delay:-17s; }
+.glow-slate { bottom:-45%; left:22%; background:radial-gradient(circle, var(--slate) 0%, transparent 68%); animation-duration:54s; animation-delay:-29s; opacity:.09; }
+.midnight .ambient-glow { opacity:.16; }
+.midnight .glow-slate { opacity:.12; }
+.ambient-ring { width:clamp(220px,32vw,520px); aspect-ratio:1; border:1px solid var(--mint); border-radius:42% 58% 65% 35% / 50% 35% 65% 50%; opacity:.16; animation:ambient-orbit 100s linear infinite; }
+.ring-one { top:8%; right:-12%; }
+.ring-two { bottom:-12%; left:-14%; border-color:var(--lime); animation-duration:120s; animation-direction:reverse; opacity:.12; }
+.ambient-spark { width:9px; height:9px; border:1px solid var(--lime); border-radius:2px; opacity:.35; animation:ambient-spark 24s ease-in-out infinite alternate; }
+.spark-a { top:19%; left:5%; }
+.spark-b { top:67%; right:4%; border-color:var(--mint); animation-delay:-8s; }
+.spark-c { bottom:9%; left:31%; width:5px; height:5px; border-radius:50%; background:var(--lime); animation-delay:-15s; }
+.spark-d { top:42%; right:31%; width:5px; height:5px; border-radius:50%; background:var(--mint); border-color:var(--mint); animation-delay:-20s; opacity:.22; }
+.page { animation:none; }
+/* Entrances are coordinated by motion.js when content enters the viewport. */
+.prompt-block { animation:none; }
+@keyframes ambient-drift { from {transform:translate3d(0,0,0) scale(1);} to {transform:translate3d(5%,8%,0) scale(1.08);} }
+@keyframes ambient-orbit { to {transform:rotate(360deg);} }
+@keyframes ambient-spark { from {transform:translate3d(0,0,0) rotate(0);} to {transform:translate3d(12px,-22px,0) rotate(70deg);} }
+.ambient-paused .ambient > span,
+.ambient-paused .hero-art *,
+.ambient-paused .pulse { animation-play-state:paused; }
+@media (hover:hover) and (prefers-reduced-motion:no-preference) {
+ button, .button, .text-link { transition:background-color .2s ease, border-color .2s ease, box-shadow .2s ease, translate .2s ease; }
+ button:not(:disabled):hover, .button:hover { translate:0 -2px; box-shadow:0 4px 12px #1d263b12; }
+ button:not(:disabled):active, .button:active { translate:0 0; }
+ .template-card:hover { border-color:var(--accent); }
+}
+@media (max-width:600px) {
+ .header-actions { gap:4px; }
+ header { gap:6px; }
+ header nav { font-size:12px; gap:9px; }
+ header nav span { display:none; }
+ .brand {font-size:20px;}
+ .brand-mark {margin-right:5px;}
+ .ambient-glow { width:480px; opacity:.1; }
+ .ambient-ring { opacity:.1; }
+ .spark-d { display:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+ .ambient > span { animation:none!important; transform:none!important; }
+ *, *::before, *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+}

@@ -32,6 +32,16 @@
   <body class="midnight">
     <script>try { if (['daylight','light'].includes(localStorage.getItem('promptly-palette'))) document.body.classList.remove('midnight'); } catch {}</script>
     <div class="ambient" aria-hidden="true">
+      <span class="ambient-grid"></span>
+      <span class="ambient-glow glow-green"></span>
+      <span class="ambient-glow glow-mint"></span>
+      <span class="ambient-glow glow-slate"></span>
+      <span class="ambient-ring ring-one"></span>
+      <span class="ambient-ring ring-two"></span>
+      <span class="ambient-spark spark-a"></span>
+      <span class="ambient-spark spark-b"></span>
+      <span class="ambient-spark spark-c"></span>
+      <span class="ambient-spark spark-d"></span>
     </div>
     <header>
       <a class="brand" href="#home">
@@ -57,9 +67,12 @@
           </span>
         </a>
       </nav>
+      <div class="header-actions">
+      <button class="palette" id="ambient-toggle" aria-label="Pause ambient motion" aria-pressed="false" title="Pause ambient motion">✧</button>
       <button class="palette" id="palette" aria-label="Switch to midnight palette" title="Remix the palette">
         ◐
       </button>
+      </div>
     </header>
     <main id="home" class="page">
       <section class="hero">

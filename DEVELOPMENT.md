@@ -55,12 +55,13 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/style.css` | Palettes, responsive layout, focus, and motion |
 | `dist/library.js` | Task categories, role tags, questions and starter templates |
 | `dist/core.js` | Validation, variables, profiles, versions, migration, collections, Undo, backups, Markdown |
+| `dist/motion.js` | Viewport entrances, dynamic content, ambient pause and reduced-motion preferences |
 | `dist/persistence.js` | Debounce, revision checks, Web Locks, and conflict resolution |
 | `dist/app.js` | DOM rendering, event handling, accessible focus, clipboard, downloads |
 | `dist/social-preview.png` | Homepage image for shared links (1200 × 630) |
 | `serve.cjs` | Loopback static development server |
 
-The deployable artifact is the complete `dist/` directory, including all four JavaScript modules. A reproducible artifact package can be made from the repository root:
+The deployable artifact is the complete `dist/` directory, including all five JavaScript modules. A reproducible artifact package can be made from the repository root:
 
 ```sh
 npm run check
@@ -93,3 +94,11 @@ The existing workspace and backup version 1 envelopes are retained, with validat
 The dependency-free suite now covers the new schemas, substitutions, template separation, policies, versions, results and profile snapshots in addition to persistence and recovery. The browser fixture also checks actual theme persistence, filters, field focus, direct editing, safe rendering, intentional unfinished export, snapshots, updates, restore Undo and live preview. Run the fixture manually as documented above. Optionally, with Node 20+ and Playwright available, run `node scripts/run-browser.cjs`; it starts/stops the test server, uses installed Chrome (or `CHROME_PATH`), and fails when any browser check fails. Set `NODE_PATH` if Playwright is supplied by a separate runtime. No runtime dependency was added to Promptly.
 
 Physical touch keyboard and screen-reader verification remain manual. Undo is bounded/in-memory; backups provide durable recovery. No accounts, cloud sync, model integrations, automatic scoring or deployment were added.
+
+## Motion and atmosphere
+
+Entrance effects are progressive enhancement in `motion.js`: headings, panels, template cards, guided fields and saved prompts gently fade/slide as they enter the viewport, with a capped stagger. Preview text and completeness messages remain steady during typing. Focus cancels any entrance on its ancestors so keyboard interaction never waits for an animation. Content is visible even without Web Animations or IntersectionObserver.
+
+The background uses existing green, lime, mint and slate tokens for slow gradient glows, thin orbit outlines, small geometric accents and the existing dot grid. These are decorative, hidden from assistive technology, and cannot intercept pointer input. The header’s star control pauses ambient motion and saves the preference in `promptly-motion`. Motion also pauses in hidden tabs. The OS reduced-motion preference disables entrances, ambient motion and hover movement; preference changes apply without reloading. No new images, dependencies or colors are required.
+
+The headless browser runner additionally verifies real entrance keyframes, keyboard pause, pause persistence, reduced-motion behavior, steady typing previews, and layout bounds at 320, 390 and 1280 pixels. Optional screenshots are written to `SCREENSHOT_DIR`.
