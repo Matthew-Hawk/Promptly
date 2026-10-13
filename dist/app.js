@@ -2,6 +2,7 @@ import { definitions, block, draft, clone, markdown, checks, templates, History,
 import { categories, roles } from './library.js';
 import { Persistence, STORAGE_KEY } from './persistence.js';
 import './motion.js';
+import './walkthrough.js';
 import { sectionLabels, fieldLabels, exampleFor, checkText } from './presentation.js';
 import { focusField, refreshFocusFlow, openStage } from './focus.js';
 

@@ -85,7 +85,7 @@ module.exports = async function checkUx(browser) {
    await page.goto('http://127.0.0.1:5175/fixture.html#home');
    await page.setViewportSize({width:1280,height:900});
    await page.screenshot({path:process.env.SCREENSHOT_DIR+'/ux-home.png',fullPage:true});
-   await page.screenshot({path:'ReadME_Assets/home.png',fullPage:true});
+   if (process.env.UPDATE_HOMEPAGE_SCREENSHOT) await page.screenshot({path:'ReadME_Assets/home.png',fullPage:true});
    await page.setViewportSize({width:360,height:900});
    await page.screenshot({path:process.env.SCREENSHOT_DIR+'/ux-home-mobile.png',fullPage:true});
   }

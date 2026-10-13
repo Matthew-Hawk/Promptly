@@ -55,6 +55,7 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/style.css` | Palettes, responsive layout, focus, and motion |
 | `dist/library.js` | Task categories, role tags, questions and starter templates |
 | `dist/core.js` | Validation, variables, profiles, versions, migration, collections, Undo, backups, Markdown |
+| `dist/walkthrough.js` | Fictional about-page walkthrough scenarios, visibility-gated playback and route cleanup |
 | `dist/presentation.js` | UI-only vocabulary, guided examples and audience example selection |
 | `dist/focus.js` | Focused question navigation and expandable builder steps; presentation only |
 | `dist/motion.js` | Viewport entrances, dynamic content, ambient pause and reduced-motion preferences |
@@ -63,7 +64,7 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/social-preview.png` | Homepage image for shared links (1200 × 630) |
 | `serve.cjs` | Loopback static development server |
 
-The deployable artifact is the complete `dist/` directory, including all seven JavaScript modules. A reproducible artifact package can be made from the repository root:
+The deployable artifact is the complete `dist/` directory, including all eight JavaScript modules. A reproducible artifact package can be made from the repository root:
 
 ```sh
 npm run check
@@ -118,3 +119,13 @@ Browser checks exercise Next/Previous, single expanded questions/steps, preserve
 ## Plain-language UI update
 
 See `UX-IMPLEMENTATION.md` for the audit reported before builder edits and verification limits. The starter library now has 17 templates, including listing descriptions, buyer/seller inquiry replies and open-house follow-up emails. All existing hash routes remain, with new real-estate routes. UI-only field/section names and examples live in `presentation.js` so exported headings and serialized variables retain their contracts. The existing `core.js` and `persistence.js` are unchanged by this update. The fresh, empty builder opens the gallery; existing work keeps the focused editor. The new headless UX checks are in `tests/ux-browser.cjs` and are invoked by `scripts/run-browser.cjs`.
+
+## How it works walkthrough
+
+The `#about` page contains an 18-second illustration: templates (0–5s), guided typing and prompt preview (5–12s), then copy/paste into a separate generic AI chat and manual review (12–18s, with about 1.4s held at the end). `walkthrough.js` keeps both real-estate and IT sample text in its top-level scenario object. Switching scenarios preserves the current scene/time. The illustration reads no saved drafts, writes no browser data, and makes no AI, analytics or external-service requests. Its static JavaScript module is loaded as a normal site asset.
+
+Playback starts only while the stage is at least 40% visible on `#about`, the browser tab is visible, the user has not paused, and reduced motion is off. Route changes disconnect the observer and cancel the animation frame; tab hiding freezes the clock. Pause/Play, Replay and numbered steps are real keyboard-accessible controls. Replay starts again from the first scene; step selection brings the illustration into view. CSS motion uses transform/opacity; text typing is illustrative and never changes a real prompt.
+
+Reduced motion disables autoplay and shows final, readable panels. At desktop widths all three storyboard panels are visible, with the selected one outlined; below 768px a single panel is shown and numbered controls switch it. Normal selectable HTML captions explain every step and the AI handoff outside the decorative, aria-hidden stage. Without IntersectionObserver, the static storyboard remains usable. Light/dark tokens and 44px controls follow the existing theme.
+
+`tests/walkthrough-browser.cjs`, called by the normal browser runner, verifies a full loop, paused typing, visibility gating, simulated hidden-tab events, route cleanup, scenario timing, keyboard controls, reduced-motion panels, responsive layouts, theme contrast, accessible captions, no external requests, and unchanged prompt storage. Physical screen-reader and first-time-user comprehension checks remain manual. The added component source (JS, CSS and markup) is below the requested 30 KB uncompressed target. No builder UI, storage schema, backups, exports or routes changed.
