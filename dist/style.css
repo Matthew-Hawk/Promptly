@@ -1536,3 +1536,7 @@ body { isolation:isolate; }
  .ambient > span { animation:none!important; transform:none!important; }
  *, *::before, *::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
 }
+/* Home content waits for its own viewport entry; layout and focus stay intact. */
+.home-reveal-pending { opacity:0; }
+.home-reveal-pending:focus-within { opacity:1; }
+@media (prefers-reduced-motion:reduce) { .home-reveal-pending { opacity:1; } }

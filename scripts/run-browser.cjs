@@ -15,6 +15,19 @@ const server = spawn(process.execPath,['scripts/browser-checks.cjs'],{stdio:'inh
  // Real browser motion preferences and keyboard interactions.
  await page.goto('http://127.0.0.1:5175/fixture.html#home');
  await page.waitForFunction(() => document.getAnimations().some(a => a.effect?.getKeyframes().some(k => /14px/.test(k.translate ?? ''))));
+ const cascade = await page.evaluate(() => {
+   const delay = selector => document.querySelector(selector).getAnimations().find(a => a.effect.getKeyframes().some(k => /14px/.test(k.translate ?? '')))?.effect.getTiming().delay;
+   return {heading:delay('#home .hero-copy h1'), paragraph:delay('#home .hero-copy > p'), footerPending:document.querySelector('#home footer > span').classList.contains('home-reveal-pending')};
+ });
+ assert(cascade.heading < cascade.paragraph,'Homepage does not cascade from top to bottom');
+ assert(cascade.footerPending,'Offscreen footer was revealed before scrolling');
+ await page.locator('#home footer').scrollIntoViewIfNeeded();
+ await page.waitForFunction(() => !document.querySelector('#home footer > span').classList.contains('home-reveal-pending'));
+ await page.waitForFunction(() => !document.querySelector('#home footer > span').getAnimations().length);
+ assert.equal(await page.locator('#home footer > span').first().evaluate(el => getComputedStyle(el).opacity),'1');
+ await page.evaluate(() => window.scrollTo(0,0));
+ assert(!await page.locator('#home footer > span').first().evaluate(el => el.classList.contains('home-reveal-pending')),'Scroll replay hid previously revealed content');
+ console.log('PASS: Top-to-bottom homepage cascade and one-time offscreen scroll reveals');
  await page.locator('#ambient-toggle').focus();
  await page.keyboard.press('Enter');
  assert.equal(await page.locator('#ambient-toggle').getAttribute('aria-pressed'),'true');
