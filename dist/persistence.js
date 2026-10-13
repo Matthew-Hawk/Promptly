@@ -1,4 +1,4 @@
-import { initial, migrate, parseState, clone, id, validateState } from './core.js';
+import { initial, migrate, parseState, clone, id, validateState, importBackup, backup } from './core.js';
 
 export const STORAGE_KEY = 'promptly-workspace-v1';
 export const LEGACY_KEY = 'promptly-draft';
@@ -97,7 +97,9 @@ export class Persistence {
       // Preserve the entire local snapshot, including local collection edits.
       const copies = [...this.state.prompts, { ...this.state.draft, archived: false }];
       if (next.prompts.length + copies.length > 500) throw new Error('Collection is full. Download both backups to resolve manually.');
-      next.prompts.push(...copies.map(p => ({ ...clone(p), id: id(), name: (p.name + ' (local copy)').slice(0, 100) })));
+      const count = next.prompts.length;
+      importBackup(next,backup(this.state));
+      next.prompts.slice(count).forEach(p => { p.name = (p.name + ' (local copy)').slice(0,100); });
       next.revision = id();
       const encoded = JSON.stringify(validateState(next));
       if (encoded.length > 10000000) throw new Error('Workspace exceeds 10 MB. Download a backup.');

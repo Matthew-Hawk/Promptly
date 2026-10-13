@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#157F1F">
-    <meta name="description" content="Build and reuse briefs for customer-facing content. Local prompt collection, editable templates, and Markdown export without an account.">
+    <meta name="description" content="Build reusable AI briefs for common workplace tasks. Editable templates, local context profiles, saved versions and Markdown export without an account.">
     <link rel="canonical" href="https://promptly.thehawk6353.workers.dev/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Promptly">
     <meta property="og:title" content="Promptly — Build your intent">
-    <meta property="og:description" content="Build and reuse briefs for customer-facing content. Local prompt collection, editable templates, and Markdown export without an account.">
+    <meta property="og:description" content="Build reusable AI briefs for common workplace tasks. Editable templates, local context profiles, saved versions and Markdown export without an account.">
     <meta property="og:url" content="https://promptly.thehawk6353.workers.dev/">
     <meta property="og:image" content="https://promptly.thehawk6353.workers.dev/social-preview.png">
     <meta property="og:image:type" content="image/png">
@@ -18,7 +18,7 @@
     <meta property="og:image:alt" content="Promptly homepage in green and cream: Big ideas. Clear briefs. Your words. Beside cards for task, context, and output.">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Promptly — Build your intent">
-    <meta name="twitter:description" content="Build and reuse briefs for customer-facing content. Local prompt collection, editable templates, and Markdown export without an account.">
+    <meta name="twitter:description" content="Build reusable AI briefs for common workplace tasks. Editable templates, local context profiles, saved versions and Markdown export without an account.">
     <meta name="twitter:image" content="https://promptly.thehawk6353.workers.dev/social-preview.png">
     <meta name="twitter:image:alt" content="Promptly homepage in green and cream: Big ideas. Clear briefs. Your words. Beside cards for task, context, and output.">
     <title>
@@ -29,7 +29,8 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="stylesheet" href="style.css">
   </head>
-  <body>
+  <body class="midnight">
+    <script>try { if (['daylight','light'].includes(localStorage.getItem('promptly-palette'))) document.body.classList.remove('midnight'); } catch {}</script>
     <div class="ambient" aria-hidden="true">
     </div>
     <header>
@@ -78,9 +79,9 @@
             </em>
           </h1>
           <p>
-            Write customer-facing content with a reusable brief.
+            Start with a template. Make it fit your task.
             <br>
-            Choose a template, add your facts, and copy your prompt.
+            Add your context, change the instructions, and keep only what helps.
             <br>
             Your work stays in this browser.
           </p>
@@ -192,6 +193,13 @@
             YOUR INTENT, CONNECTED.
           </span>
         </div>
+      </section>
+      <section class="starting-points">
+        <h2>From a vague request to a useful workplace brief</h2>
+        <p>Illustrative example — before: “Summarize this meeting.”</p>
+        <p>After: “Summarize these notes for the operations team. Separate decisions, open questions, and action items. Use only the supplied notes. List owners and dates only when stated; flag missing information.”</p>
+        <div class="hero-actions"><a class="button secondary" href="#builder/summary">Summarize notes →</a><a class="button secondary" href="#builder/incident">Share an incident update →</a><a class="button secondary" href="#builder/project">Plan a project →</a></div>
+        <p>Promptly organizes instructions into a prompt. It does not call AI models or verify facts. Review AI responses before using them. Work stays in this browser; download editable JSON backups.</p>
       </section>
       <section class="process">
         <span class="eyebrow">
@@ -318,8 +326,10 @@
           Choose a starting point
         </h2>
         <p>
-          Replace the bracketed placeholders with your facts. You can undo template changes.
+          Browse by task, optionally filter by your role, then tailor the questions and sections. Role filters never assign a role to the AI.
         </p>
+        <details id="template-browser" open><summary>Browse workplace templates</summary><div class="filters"><label>Task category<select id="category-filter"></select></label><label>Your role<select id="role-filter"></select></label><label>Search templates<input id="template-search" type="search" placeholder="Search tasks and deliverables"></label></div>
+        <p id="selected-template" role="status"></p>
         <div id="templates">
           <button data-template="launch">
             Launch email
@@ -330,12 +340,12 @@
           <button data-template="reply">
             Customer reply
           </button>
-          <button id="new-prompt">
-            Blank brief
-          </button>
         </div>
+        </details><button id="new-prompt">Blank brief</button>
       </section>
       <div class="builder-controls">
+        <button id="my-prompts">My prompts</button>
+        <label class="archive-label"><input type="checkbox" id="live-preview"> Live preview (wide screens)</label>
         <div role="group" aria-label="Brief view">
           <button id="view-editor" aria-pressed="true" aria-controls="canvas">
             Edit your brief
@@ -356,8 +366,7 @@
       </div>
       <div id="toast" role="status" aria-live="polite">
       </div>
-      <p id="guidance" class="guidance">
-      </p>
+      <div id="guidance" class="guidance" aria-label="Completeness checks"></div>
       <div class="workshop">
         <section class="canvas" id="canvas" aria-labelledby="editor-heading">
           <div class="panel-title">
@@ -374,6 +383,17 @@
               Clear brief
             </button>
           </div>
+          <section class="guided-panel">
+            <h3>Guided values</h3><p>Fields replace named {{variables}} wherever they appear. Advanced edits keep the tokens or replace them with fixed text. Changing a field only changes its tokens; it never rewrites your sections.</p>
+            <div id="variables"></div>
+            <details><summary>Add a reusable variable</summary><label>Variable key<input id="variable-key" maxlength="50" placeholder="project_name"></label><label>Label<input id="variable-label" maxlength="100" placeholder="Project name"></label><button id="add-variable">Add variable</button></details>
+            <label>Missing-information policy<select id="missing-policy"><option value="ask">Ask clarifying questions before drafting</option><option value="flag">Draft using facts and flag missing information</option><option value="placeholders">Leave placeholders where facts are missing</option></select></label>
+            <p>This instructs the eventual AI; it does not guarantee model behavior.</p>
+            <label class="archive-label"><input type="checkbox" id="outside-info"> Allow outside information (identify additions and sources)</label><p>References are labeled content, separate from instructions. Delimiters do not eliminate prompt-injection risk. Pasted URLs are not fetched.</p>
+            <details><summary>Context & voice profiles (optional)</summary><p>Include a profile explicitly. Its editable snapshot stays with this brief until you refresh it.</p><div id="included-profiles"></div><label>Saved profile<select id="profile-select"></select></label><button id="include-profile">Include / refresh selected profile</button><button id="edit-profile">Edit selected profile</button><button id="new-profile">New profile</button></details>
+          </section>
+          <nav id="section-nav" aria-label="Brief sections"></nav>
+          <h3>Advanced section editor</h3><p class="local-note">Every instruction is editable. Remove or add sections as needed.</p>
           <div id="composition">
           </div>
           <details id="details-drawer">
@@ -387,11 +407,12 @@
             </div>
           </details>
           <button id="save-prompt" class="button secondary">
-            Save a copy to collection
+            Save as new prompt
           </button>
           <p class="local-note">
-            Your working brief saves automatically. Collection entries are snapshots; save another copy after editing.
+            Your working draft autosaves. Save as new creates a completed prompt; Update adds a saved version. Templates are reusable starting points with separate working copies.
           </p>
+          <button id="update-prompt">Update saved prompt</button><button id="save-template">Save as reusable template</button>
         </section>
         <section class="preview" id="preview" hidden aria-labelledby="preview-heading">
           <div class="panel-title">
@@ -416,7 +437,7 @@
       <button id="copy-bottom" class="button primary bottom-copy">
         Copy this prompt
       </button>
-      <details class="collection">
+      <details class="collection" id="collection">
         <summary>
           Saved prompts
           &amp;
@@ -429,6 +450,7 @@
           <input type="checkbox" id="show-archived">
           Show archived prompts
         </label>
+        <div class="filters"><label>Search prompts or tags<input id="collection-search" type="search"></label><label>Type<select id="collection-kind"><option value="all">All types</option><option value="prompt">Completed prompts</option><option value="template">Reusable templates</option></select></label><label class="archive-label"><input id="favorites-only" type="checkbox"> Favorites only</label></div>
         <div id="prompt-list">
         </div>
         <div class="backup-controls">
@@ -461,12 +483,12 @@
           </em>
         </h1>
         <p>
-          Tell the AI what to write, who it is for, which facts it may use, and what the output should look like. Add only details that help. Promptly organizes those instructions into Markdown; review every AI response for accuracy before using it.
+          Build reusable AI briefs for writing, explaining, planning, reviewing, and summarizing common workplace tasks. Tell the AI what to do, who it is for, which facts it may use, and what the output should look like. Add only details that help. Promptly organizes instructions into Markdown. It does not call models or verify supplied facts; review every AI response before using it.
         </p>
       </section>
       <section class="about-cta">
         <h2>
-          Start with your next piece of content.
+          Start with your next workplace task.
         </h2>
         <a href="#builder" class="button primary">
           Choose a template ↗
@@ -476,6 +498,10 @@
         </p>
       </section>
     </main>
+    <dialog id="inspect-dialog" aria-labelledby="inspect-heading"><h2 id="inspect-heading">Saved prompt and versions</h2><div id="inspect-body"></div><button id="inspect-close">Close</button></dialog>
+    <dialog id="profile-dialog" aria-labelledby="profile-heading"><form id="profile-form"><h2 id="profile-heading">Context & voice profile</h2><div id="profile-fields"></div><button type="button" id="profile-cancel">Cancel</button><button class="primary" type="submit">Save profile</button></form></dialog>
+    <dialog id="unfinished-dialog" aria-labelledby="unfinished-heading"><h2 id="unfinished-heading">Export unfinished brief?</h2><p>There are completeness checks to review. You can deliberately copy or export this as an unfinished template. Completeness does not guarantee an accurate AI response.</p><button id="unfinished-cancel">Return to editing</button><button id="unfinished-confirm">Export anyway</button></dialog>
+    <dialog id="replace-dialog" aria-labelledby="replace-heading"><h2 id="replace-heading">Replace working draft?</h2><p>Your current working draft will be replaced. Save it to My prompts first if you need a lasting copy. Undo will also restore it during this session.</p><button id="replace-cancel">Keep editing</button><button id="replace-confirm">Replace draft</button></dialog>
     <dialog id="rename-dialog" aria-labelledby="rename-heading">
       <form id="rename-form">
         <h2 id="rename-heading">

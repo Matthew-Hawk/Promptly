@@ -4,8 +4,8 @@
 
 ### Your judgment. A clearer brief.
 
-Turn repeat writing tasks into prompts you can actually reuse.<br>
-A browser-local workshop for launch emails, homepage introductions, and customer replies.
+Start with a template. Make it fit your task.<br>
+A browser-local brief builder for common workplace tasks: write, explain, plan, review, and summarize.
 
 [![Try the builder](https://img.shields.io/badge/TRY_THE_BUILDER_%E2%86%97-157F1F?style=for-the-badge)](https://promptly.thehawk6353.workers.dev/#builder)
 
@@ -18,21 +18,23 @@ No account. No API key. Your intent stays yours.
 
 ## 🧩 Build a brief. Keep the useful parts.
 
-1. **Choose a starting point.** Launch email, Homepage introduction, Customer reply—or a blank brief.
-2. **Add your facts.** Define the task, audience, boundaries, and output. Replace template placeholders with verified information.
+1. **Choose a starting point.** Browse 14 task templates with optional role filters and search, or start a blank brief.
+2. **Add your facts.** Define the task, audience, boundaries, and output. Fill labeled variables with verified information; edit any section directly.
 3. **Review and export.** Switch to the prompt preview, then copy or download Markdown for your preferred AI.
-4. **Save it for next time.** Capture a named copy in your collection and open it later as a new working brief.
+4. **Save it for next time.** Save a completed prompt or reusable template. Update prompts with version history, or save as new.
 
 ![The updated brief editor with a homepage template, guided fields, and save-to-collection controls](ReadME_Assets/editor.png)
 
 ## ✦ Less starting over. More building on what works.
 
-- **Focused templates** for common customer-facing writing tasks.
-- **Eight block types**, with optional details for tone, examples, success criteria, and role.
-- **A reusable collection:** open, rename, duplicate, archive, and restore saved prompts.
+- **Task-first templates** with guided questions, consistent variables and actionable completeness checks.
+- **Editable sections** with collapse, navigation and optional live preview on wide screens.
+- **My prompts:** search, tags, favorites, preview, rename, duplicate, archive, saved versions and restore.
+- **Local context and voice profiles** with editable snapshots and explicit refresh.
+- **Reference material**, missing-information policies and optional manual results attached to versions.
 - **Undo** for block removal, clearing, and brief replacement.
 - **JSON backup and import** to preserve editable briefs and collections.
-- **Daylight and midnight palettes**, responsive controls, and reduced-motion support.
+- **Midnight by default**, persisted theme preferences, responsive controls, and reduced-motion support.
 
 <details>
 <summary><strong>🌙 See the prompt preview in midnight</strong></summary>
@@ -43,13 +45,13 @@ No account. No API key. Your intent stays yours.
 
 ### 💾 Keep a copy of your work
 
-Working edits save locally; collection entries are snapshots. Save another collection copy after making changes you want to reuse. Browser storage doesn't sync between devices and can be cleared—download JSON backups regularly. Markdown exports preserve prompt text; JSON backups preserve editable blocks and saved entries.
+Working drafts autosave locally. Save as new creates a completed prompt; Update adds a version. Reusable templates create separate working copies with empty guided values. Profile edits never silently alter included snapshots. Browser storage doesn't sync between devices and can be cleared—download JSON backups regularly. Markdown exports preserve prompt text; JSON backups preserve editable blocks and saved entries.
 
 Promptly doesn't call an AI model or generate responses. It helps you organize the instructions you take to one.
 
 ## ⚙️ Under the hood
 
-**HTML, CSS, and vanilla JavaScript.** No build step or runtime dependencies. `core.js` handles templates, collections, Undo, backups, and Markdown; `persistence.js` handles browser storage and conflicting edits across tabs; `app.js` connects the interface. The deployable files live in `dist/`.
+**HTML, CSS, and vanilla JavaScript.** No build step or runtime dependencies. `library.js` defines task templates, roles and questions; `core.js` handles validation, variables, profiles, versions, collections, Undo, backups, and Markdown; `persistence.js` handles browser storage and conflicting edits across tabs; `app.js` connects the interface. The deployable files live in `dist/`.
 
 Local saving needs browser storage and Web Locks over HTTPS or localhost. If storage is unavailable, you can still edit in memory and export your work. Recovery and development details: **[DEVELOPMENT.md](DEVELOPMENT.md)**.
 

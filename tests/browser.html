@@ -70,7 +70,8 @@ await check('Clipboard denial reveals selected Markdown and preview', async () =
 await check('Templates, destructive undo, collection operations, mobile bounds', async () => {
   const f = await frame(); const doc = f.contentDocument;
   doc.querySelector('[data-template=homepage]').click();
-  assert(doc.querySelector('textarea').value.includes('[business]'), 'Template not loaded');
+  doc.querySelector('#replace-confirm').click();
+  assert(doc.querySelector('#composition textarea').value.includes('{{subject}}'), 'Template not loaded');
   doc.querySelector('#undo').click();
   assert(doc.querySelector('textarea').value === 'Legacy content', 'Template undo failed');
   doc.querySelector('[data-remove]').click(); doc.querySelector('#undo').click();
@@ -150,6 +151,65 @@ await check('Desktop editor and preview fit a 1280px viewport without overflow',
   doc.querySelector('#view-preview').click();
   assert(!doc.querySelector('#preview').hidden && doc.querySelector('#canvas').hidden, 'Preview switch failed');
   assert(doc.documentElement.scrollWidth <= doc.documentElement.clientWidth, 'Preview overflow');
+});
+localStorage.removeItem(key); localStorage.removeItem('promptly-draft'); localStorage.removeItem('promptly-palette');
+await check('Dark default, saved light theme, categories, role filters and search', async () => {
+ const f=await frame(); const d=f.contentDocument;
+ assert(d.body.classList.contains('midnight'),'First visit not dark');
+ d.querySelector('#palette').click(); f.remove();
+ const next=await frame(); const doc=next.contentDocument;
+ assert(!doc.body.classList.contains('midnight'),'Light preference lost');
+ field(doc.querySelector('#category-filter'),'Explain & document');
+ assert(doc.querySelectorAll('[data-template]').length===3,'Category failed');
+ field(doc.querySelector('#role-filter'),'IT & technical support');
+ field(doc.querySelector('#template-search'),'technical');
+ assert(doc.querySelectorAll('[data-template]').length===1,'Filters failed');
+ doc.querySelector('[data-template=technical]').click();
+ assert(doc.querySelector('[data-template=technical]').getAttribute('aria-pressed')==='true','Selection missing');
+ assert(!doc.querySelector('#composition').textContent.includes('Act as an IT'),'Role filter assigned AI role');
+ await until(()=>doc.querySelector('#save-status').textContent==='Saved in this browser');
+});
+await check('Variables, advanced edits, check focus, safe rendering and unfinished export', async () => {
+ const f=await frame(); const d=f.contentDocument;
+ d.querySelector('[data-template=launch]').click(); d.querySelector('#replace-confirm').click();
+ d.querySelector('[data-jump="var-subject"]').click(); assert(d.activeElement.id==='var-subject','Check focus missing');
+ field(d.querySelector('#composition textarea'),'Custom {{subject}} / {{subject}}');
+ field(d.querySelector('#var-subject'),'Service');
+ assert(d.querySelector('#composition textarea').value==='Custom {{subject}} / {{subject}}','Direct edit overwritten');
+ assert(d.querySelector('#preview-output').textContent.includes('Service / Service'),'Repeated substitution failed');
+ field(d.querySelector('#var-facts'),'<img src=x onerror="window.compromised=true">');
+ assert(!f.contentWindow.compromised && !d.querySelector('#preview-output img'),'Unsafe rendering');
+ d.querySelector('#copy').click(); assert(d.querySelector('#unfinished-dialog').open,'Copy warning missing'); d.querySelector('#unfinished-cancel').click();
+ d.querySelector('#download').click(); assert(d.querySelector('#unfinished-dialog').open,'Export warning missing'); d.querySelector('#unfinished-confirm').click();
+ assert(!d.querySelector('#unfinished-dialog').open,'Unfinished export blocked');
+ await until(()=>d.querySelector('#save-status').textContent==='Saved in this browser');
+});
+await check('Profile snapshots, saved updates, versions, restore undo and results', async () => {
+ const f=await frame(); const d=f.contentDocument;
+ d.querySelector('#new-profile').click(); field(d.querySelector('[name=name]'),'Team'); field(d.querySelector('[name=facts]'),'Old fact'); d.querySelector('#profile-form').requestSubmit();
+ d.querySelector('#include-profile').click(); d.querySelector('#save-prompt').click(); d.querySelector('#edit-profile').click();
+ field(d.querySelector('[name=facts]'),'New fact'); d.querySelector('#profile-form').requestSubmit();
+ assert(d.querySelector('[data-property=facts]').value==='Old fact','Snapshot silently changed');
+ d.querySelector('#include-profile').click(); assert(d.querySelector('[data-property=facts]').value==='New fact','Refresh failed');
+ d.querySelector('#update-prompt').click(); assert(d.querySelectorAll('.saved-prompt').length===1,'Update duplicated prompt');
+ d.querySelector('[data-inspect]').click(); assert(d.querySelectorAll('#inspect-body > details').length===2,'Versions missing');
+ assert(d.querySelector('#inspect-body > details pre').textContent.includes('Old fact'),'Old version changed');
+ const form=d.querySelector('[data-result-version]'); field(form.querySelector('[name=response]'),'AI answer'); form.requestSubmit();
+ d.querySelector('[data-restore-version]').click(); assert(d.querySelectorAll('#inspect-body > details').length===3,'Restore lost history');
+ d.querySelector('#inspect-close').click(); d.querySelector('#undo').click(); d.querySelector('[data-inspect]').click();
+ assert(d.querySelectorAll('#inspect-body > details').length===2,'Restore undo failed'); assert(d.querySelector('[name=response]').value==='AI answer','Result lost');
+ d.querySelector('#inspect-close').click(); d.querySelector('#save-template').click(); field(d.querySelector('#collection-kind'),'template');
+ assert(d.querySelectorAll('.saved-prompt').length===1,'Type filter failed'); d.querySelector('[data-open]').click(); assert(d.querySelector('#replace-dialog').open,'Replacement guard missing'); d.querySelector('#replace-confirm').click();
+ assert(d.querySelector('#var-subject').value==='' && d.querySelector('#update-prompt').disabled,'Template copy linked to original');
+ await until(()=>d.querySelector('#save-status').textContent==='Saved in this browser');
+});
+await check('Wide live preview and collapsed section navigation', async () => {
+ const f=await frame(false,1280); const d=f.contentDocument;
+ const toggle=d.querySelector('#live-preview'); toggle.checked=true; toggle.dispatchEvent(new Event('change'));
+ assert(!d.querySelector('#canvas').hidden && !d.querySelector('#preview').hidden,'Split preview missing');
+ assert(d.documentElement.scrollWidth<=d.documentElement.clientWidth,'Split overflow');
+ const details=d.querySelector('#composition details'); details.open=false; d.querySelector('#section-nav button').click();
+ assert(details.open && d.activeElement.matches('#composition textarea'),'Section focus failed');
 });
 document.title = 'PASS — Promptly browser checks';
 </script>

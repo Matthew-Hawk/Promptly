@@ -1,14 +1,12 @@
 # ▦ promptly.
 
-A browser-local workshop for people who repeatedly use AI to write customer-facing content. No account, API key, AI calls, or content analytics. The green-and-cream and midnight palettes remain available.
+A browser-local workshop for reusable AI briefs across common workplace tasks. No account, API key, AI calls, or content analytics. The green-and-cream and midnight palettes remain available.
 
 ## Build and reuse a brief
 
-Choose **Launch email**, **Homepage introduction**, or **Customer reply** before composing, or start a blank brief with Task. Replace template placeholders with verified facts. Context, Constraints, and Output format are under **Add details**; Role, Tone, Examples, and Success criteria are optional. Suggestions explain missing tasks and bracketed placeholders without blocking copying.
+Choose a task template or blank brief. Browse five categories with optional role filters and search. Guided values replace named variables consistently; the advanced section editor remains independent and fully editable. Add, remove, collapse or navigate sections, and optionally show a live preview beside the editor on wide screens. Copy/export stays available; intentional unfinished exports require a clear confirmation. See the workplace update below for editing and collection behavior.
 
-Switch between **Edit your brief** and **Preview prompt**. Copy from the top controls or the bottom of the brief, or export Markdown. Clipboard denial switches to selected Markdown for manual copying. Controls stay in the document flow, with 44px touch targets, visible keyboard focus, labeled fields, and reduced-motion support.
-
-**Save a copy to collection** captures a named snapshot. Open an entry as an editable working copy, rename, duplicate, archive, or restore it. Later edits save to the working brief; save another collection copy when ready. Archiving retains content. Undo restores up to 20 previous briefs after block removal, clearing, template replacement, opening a saved prompt, or starting a new brief. Undo history is in memory and resets on reload or conflict resolution; it does not undo typing or collection changes.
+**My prompts** contains completed prompts and reusable templates. Save as new creates a snapshot; Update adds a saved version. Preview, search, tag, favorite, rename, duplicate, archive or restore entries. Templates create separate working briefs. Version restore preserves unrelated working work and can be undone. Draft Undo is bounded to 20 entries and remains in memory only. Copying falls back to selected Markdown when clipboard permission is denied.
 
 ## Keeping your work
 
@@ -55,13 +53,14 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | --- | --- |
 | `dist/index.html` | Home, concise explanation, and builder markup |
 | `dist/style.css` | Palettes, responsive layout, focus, and motion |
-| `dist/core.js` | Validation, migration, collection operations, Undo, templates, backups, Markdown |
+| `dist/library.js` | Task categories, role tags, questions and starter templates |
+| `dist/core.js` | Validation, variables, profiles, versions, migration, collections, Undo, backups, Markdown |
 | `dist/persistence.js` | Debounce, revision checks, Web Locks, and conflict resolution |
 | `dist/app.js` | DOM rendering, event handling, accessible focus, clipboard, downloads |
 | `dist/social-preview.png` | Homepage image for shared links (1200 × 630) |
 | `serve.cjs` | Loopback static development server |
 
-The deployable artifact is the complete `dist/` directory, including all three JavaScript modules. A reproducible artifact package can be made from the repository root:
+The deployable artifact is the complete `dist/` directory, including all four JavaScript modules. A reproducible artifact package can be made from the repository root:
 
 ```sh
 npm run check
@@ -78,3 +77,19 @@ Upload that directory or unpacked artifact to an HTTPS static host using its exi
 The canonical, Open Graph, and Twitter image URLs use `https://promptly.thehawk6353.workers.dev/`. Update those absolute URLs if the public domain changes. Home, about, and builder links use fragments and share the same preview. Deploy the complete `dist/` directory, then verify the public HTML contains the metadata and `/social-preview.png` returns the PNG. Platforms may cache older previews; request a refresh in their link-preview debugger after deployment if needed.
 
 
+
+## Workplace brief builder update
+
+Promptly now uses midnight for first visits, preserving saved daylight/midnight preferences. The starter library covers five task categories and 14 templates, including the original three. Customer reply and follow-up share one structure; project briefs and implementation plans share one structure. Optional role filters only filter the catalog and never assign an AI role.
+
+Named `{{variables}}` replace guided values consistently at preview/export time. The advanced editor stores the instruction text independently: retaining a token keeps it connected to its field, replacing it with literal text disconnects that occurrence. Field changes never overwrite section text. Custom variables and removable sections keep templates editable. Specific completeness messages focus the relevant input. Missing information does not block deliberate export after confirmation; there is no quality score.
+
+**My prompts** supports search/tags, favorites, preview, rename, duplication, archive/restore, save as new, and update. Each completed prompt has up to 50 immutable content versions with optional manually entered response/model/result notes. Restore adds a new saved version and preserves the unrelated working draft; Undo reverses the latest restore or archive action in this session. Result notes themselves remain editable. Reusable templates create separate briefs with cleared variable values. Save a customized template as a new template; templates are not automatically updated from those briefs.
+
+Context and voice profiles are optional, local, limited to 50, and explicitly included as editable snapshots. Editing the profile library does not change a draft, completed prompt or saved version. Include/refresh replaces the selected snapshot explicitly, with Undo. Imported profile IDs and snapshot links are remapped together. Dedicated facts/original/style references specify facts, style or both; generated Markdown delimits and quotes their content and tells the eventual AI to treat it as content. URLs are not fetched, and delimiters cannot guarantee protection from prompt injection. Missing-information and outside-information policies are included in output.
+
+The existing workspace and backup version 1 envelopes are retained, with validated optional variables, profiles, template markers, tags, favorites, histories and result metadata. Old workspaces/backups still load. New backups require this updated app to retain the additional metadata; older Promptly code may ignore optional extensions. Keep both now preserves profiles as well as prompts. Limits remain 10 MB overall, 500 collection entries, 100 blocks, and 100,000 characters per text field, with 50 variables/profiles/versions and 30 tags. Browser quota may be lower.
+
+The dependency-free suite now covers the new schemas, substitutions, template separation, policies, versions, results and profile snapshots in addition to persistence and recovery. The browser fixture also checks actual theme persistence, filters, field focus, direct editing, safe rendering, intentional unfinished export, snapshots, updates, restore Undo and live preview. Run the fixture manually as documented above. Optionally, with Node 20+ and Playwright available, run `node scripts/run-browser.cjs`; it starts/stops the test server, uses installed Chrome (or `CHROME_PATH`), and fails when any browser check fails. Set `NODE_PATH` if Playwright is supplied by a separate runtime. No runtime dependency was added to Promptly.
+
+Physical touch keyboard and screen-reader verification remain manual. Undo is bounded/in-memory; backups provide durable recovery. No accounts, cloud sync, model integrations, automatic scoring or deployment were added.
