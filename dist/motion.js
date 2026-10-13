@@ -1,7 +1,7 @@
 // Progressive enhancement: content stays visible if animation APIs are unavailable.
 // Preview text and completeness checks deliberately stay steady while typing.
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const homeTargets = 'header .brand, header nav > a, .header-actions > button, #home .hero-copy > :not(.hero-actions), #home .hero-copy .hero-actions > a, #home .hero-art > *, #home > section:not(.hero), #home > footer, #home .starting-points > :not(.hero-actions), #home .starting-points .hero-actions > a, #home .process > .eyebrow, #home .process > div > *, #home .human > .human-symbol, #home .human > div > *, #home .human > a, #home footer > *';
+const homeTargets = 'header .brand, header nav > a, .header-actions > button, #home .hero-copy > :not(.hero-actions), #home .hero-copy .hero-actions > a, #home .hero-art > *, #home > section:not(.hero), #home > footer, #home .example-section > :not(.example-panel), #home .example-panel .before-after > div, #home .example-links > a, #home .power-users > *, #home .power-grid > article, #home .home-faq > *, #home .starting-points .hero-actions > a, #home .process > .eyebrow, #home .process > div > *, #home .human > .human-symbol, #home .human > div > *, #home .human > a, #home footer > *';
 const targets = '[data-home-reveal], .page:not(#home) > section, .builder-controls, .workshop > section, .collection, .template-card, .prompt-block, .saved-prompt, #variables > .question-card';
 const homeElements = [...document.querySelectorAll(homeTargets)];
 homeElements.forEach(element => element.setAttribute('data-home-reveal',''));
@@ -83,7 +83,7 @@ function motionState() {
   document.body.classList.toggle('ambient-paused',paused || document.hidden || reduceMotion.matches);
   toggle.disabled = reduceMotion.matches;
   toggle.setAttribute('aria-pressed',String(paused || reduceMotion.matches));
-  const label = reduceMotion.matches ? 'Motion disabled by your reduced-motion preference' : paused ? 'Resume ambient motion' : 'Pause ambient motion';
+  const label = reduceMotion.matches ? 'Motion disabled by your reduced-motion preference' : paused ? 'Resume background motion' : 'Pause background motion';
   toggle.setAttribute('aria-label',label);
   toggle.title = label;
   if (reduceMotion.matches || document.hidden) for (const animation of active.values()) animation.cancel();

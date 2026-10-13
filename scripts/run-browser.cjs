@@ -76,6 +76,7 @@ const server = spawn(process.execPath,['scripts/browser-checks.cjs'],{stdio:'inh
  await page.locator('#checks-panel > summary').click();
  assert(await page.evaluate(() => document.documentElement.scrollHeight < 2200),'Focused builder remains too long');
  console.log('PASS: Focused questions, next/back, collapsed content preservation, check jumps and review flow');
+ await require('../tests/ux-browser.cjs')(browser);
  if (process.env.SCREENSHOT_DIR) {
   await page.setViewportSize({width:1400,height:1000});
   if (!await page.locator('body').evaluate(el => el.classList.contains('midnight'))) await page.locator('#palette').click();
