@@ -2,6 +2,7 @@ import { definitions, block, draft, clone, markdown, checks, templates, History,
 import { categories, roles } from './library.js';
 import { Persistence, STORAGE_KEY } from './persistence.js';
 import './motion.js';
+import { sectionLabels, fieldLabels, exampleFor, checkText } from './presentation.js';
 import { focusField, refreshFocusFlow, openStage } from './focus.js';
 
 const $ = selector => document.querySelector(selector);
@@ -31,7 +32,7 @@ function renderStatus() {
   const labels = {
     saved: 'Saved in this browser', unsaved: persistence.dirty ? 'Unsaved changes' : 'Not saved yet',
     unavailable: 'Storage unavailable · download a backup',
-    conflict: 'Another tab changed this workspace · resolve below',
+    conflict: 'Another tab changed your saved prompts · resolve below',
     recovery: 'Saved data could not be read · original data preserved',
   };
   $('#save-status').textContent = labels[persistence.status];
@@ -64,17 +65,18 @@ function requestReplacement(next) {
 function renderBlocks() {
   const opened = $('#composition details[open]')?.closest('.prompt-block')?.id;
   $('#composition').innerHTML = state.draft.blocks.map((b,index) => {
-    const d = definitions.find(d => d.id === b.type);
-    return `<article class="prompt-block" id="section-${escape(b.key)}"><details ${opened ? opened === "section-"+b.key ? "open" : "" : index === 0 ? "open" : ""}><summary>${d.name} · ${escape(b.value.replace(/\s+/g,' ').slice(0,70) || 'Empty section')}</summary><div class="block-header"><h3><label for="field-${escape(b.key)}">${d.name}</label></h3><div class="block-tools"><button data-remove="${escape(b.key)}" aria-label="Remove ${d.name}">×</button></div></div><p id="help-${escape(b.key)}">${d.help}</p>${['notes','original','style'].includes(b.type) ? `<label class="source-usage">Reference supplies<select data-usage="${escape(b.key)}">${['facts','style','both'].map(u => `<option ${u === (b.usage ?? (b.type === 'style' ? 'style' : 'facts')) ? 'selected' : ''}>${u}</option>`).join('')}</select></label>` : ''}<textarea id="field-${escape(b.key)}" data-field="${escape(b.key)}" aria-describedby="help-${escape(b.key)}" maxlength="100000" placeholder="${d.help}">${escape(b.value)}</textarea></details></article>`;
+    const definition = definitions.find(d => d.id === b.type);
+    const d = {...definition,name:sectionLabels[b.type] ?? definition.name};
+    return `<article class="prompt-block" id="section-${escape(b.key)}"><details ${opened ? opened === "section-"+b.key ? "open" : "" : index === 0 ? "open" : ""}><summary>${d.name} · ${escape(b.value.replace(/\s+/g,' ').slice(0,70) || 'Empty section')}</summary><div class="block-header"><h3><label for="field-${escape(b.key)}">${d.name}</label></h3><div class="block-tools"><button data-remove="${escape(b.key)}" aria-label="Remove ${d.name}"><span aria-hidden="true">×</span></button></div></div><p id="help-${escape(b.key)}">${d.help}</p>${['notes','original','style'].includes(b.type) ? `<label class="source-usage">Reference supplies<select data-usage="${escape(b.key)}">${['facts','style','both'].map(u => `<option ${u === (b.usage ?? (b.type === 'style' ? 'style' : 'facts')) ? 'selected' : ''}>${u}</option>`).join('')}</select></label>` : ''}<textarea id="field-${escape(b.key)}" data-field="${escape(b.key)}" aria-describedby="help-${escape(b.key)}" maxlength="100000" placeholder="${d.help}">${escape(b.value)}</textarea></details></article>`;
   }).join('') || '<p class="empty">Add a task or choose a template to begin.</p>';
   $('#instructions-summary').textContent = `${state.draft.blocks.length} editable sections · keep only what helps`;
-  $('#section-nav').innerHTML = state.draft.blocks.map(b => `<button data-jump="${escape(b.key)}">${definitions.find(d => d.id === b.type).name}</button>`).join('');
+  $('#section-nav').innerHTML = state.draft.blocks.map(b => `<button data-jump="${escape(b.key)}">${(sectionLabels[b.type] ?? definitions.find(d => d.id === b.type).name)}</button>`).join('');
 }
 function renderCollection() {
   const archived = $('#show-archived').checked;
   const query = $('#collection-search').value.toLowerCase();
   const kind = $('#collection-kind').value;
-  $('#prompt-list').innerHTML = state.prompts.filter(p => p.archived === archived && (kind === 'all' || (p.kind ?? 'prompt') === kind) && (!$('#favorites-only').checked || p.favorite) && [p.name,...(p.tags ?? [])].join(' ').toLowerCase().includes(query)).map(p => `<article class="saved-prompt"><strong>${escape(p.name || 'Untitled prompt')}</strong><p>${p.kind === 'template' ? 'Reusable template' : 'Completed prompt'} · ${p.versions?.length ?? 0} saved versions · ${escape((p.tags ?? []).join(', '))}</p><div><button data-inspect="${escape(p.id)}">Preview / versions / results</button><button data-open="${escape(p.id)}">${p.kind === 'template' ? 'Create new brief' : 'Open'}</button><button data-favorite="${escape(p.id)}" aria-pressed="${!!p.favorite}">${p.favorite ? '★ Favorite' : '☆ Favorite'}</button><button data-tags="${escape(p.id)}">Edit tags</button><button data-rename="${escape(p.id)}">Rename</button><button data-duplicate="${escape(p.id)}">Duplicate</button><button data-archive="${escape(p.id)}">${p.archived ? 'Restore' : 'Archive'}</button></div></article>`).join('') || '<p>No prompts match this view. Save your working brief or change the filters.</p>';
+  $('#prompt-list').innerHTML = state.prompts.filter(p => p.archived === archived && (kind === 'all' || (p.kind ?? 'prompt') === kind) && (!$('#favorites-only').checked || p.favorite) && [p.name,...(p.tags ?? [])].join(' ').toLowerCase().includes(query)).map(p => `<article class="saved-prompt"><strong>${escape(p.name || 'Untitled prompt')}</strong><p>${p.kind === 'template' ? 'Reusable template' : 'Completed prompt'} · ${p.versions?.length ?? 0} saved versions · ${escape((p.tags ?? []).join(', '))}</p><div><button data-inspect="${escape(p.id)}">Preview / versions / results</button><button data-open="${escape(p.id)}">${p.kind === 'template' ? 'Create new prompt' : 'Open'}</button><button data-favorite="${escape(p.id)}" aria-pressed="${!!p.favorite}">${p.favorite ? '<span aria-hidden="true">★</span> Favorite' : '<span aria-hidden="true">☆</span> Favorite'}</button><button data-tags="${escape(p.id)}">Edit tags</button><button data-rename="${escape(p.id)}">Rename</button><button data-duplicate="${escape(p.id)}">Duplicate</button><button data-archive="${escape(p.id)}">${p.archived ? 'Restore' : 'Archive'}</button></div></article>`).join('') || '<p>No prompts match this view. Save your current prompt or change the filters.</p>';
 }
 function render() {
   $('#prompt-name').value = state.draft.name;
@@ -82,7 +84,7 @@ function render() {
   renderCollection();
   renderGuided();
   renderTemplates();
-  $('#template-browser').open = false;
+  $('#template-browser').open = !state.draft.templateId && !state.draft.blocks.some(b => b.value.trim());
   refreshFocusFlow();
   if (!state.draft.variables?.length) { $('#brief-details').open = false; $('#instructions-stage').open = true; $('#finish-stage').open = false; }
   updatePreview();
@@ -94,7 +96,7 @@ function updatePreview() {
   $('#copy-bottom').disabled = !content;
   $('#download').disabled = !content;
   $('#preview-output').innerHTML = !content ? '<p class="empty">Your prompt appears here as you write.</p>' : mode === 'markdown' ? `<pre>${escape(content)}</pre>` : content.split(/\n\n(?=## )/).map((part,i) => { const lines = part.split('\n'); return `<section><${i ? 'h3' : 'h2'}>${escape(lines.shift().replace(/^#+ /,''))}</${i ? 'h3' : 'h2'}><p>${escape(lines.join('\n').trim())}</p></section>`; }).join('');
-  $('#guidance').innerHTML = checks(state.draft).map(c => `<button data-jump="${escape(c.target)}">${escape(c.message)} →</button>`).join('') || 'No completeness checks outstanding. Review the prompt and eventual AI response.';
+  $('#guidance').innerHTML = checks(state.draft).map(c => `<button data-jump="${escape(c.target)}">${escape(checkText(c,state.draft))} →</button>`).join('') || 'No completeness checks outstanding. Review the prompt and eventual AI response.';
   $('#checks-summary').textContent = checks(state.draft).length ? `${checks(state.draft).length} details to review · optional before exporting` : 'Ready to review · no missing details';
   $('#update-prompt').disabled = !state.prompts.some(p => p.id === state.draft.savedId && p.kind !== 'template');
 }
@@ -120,13 +122,13 @@ function download(content, filename, type = 'application/json') {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function report(error) { notify(error.message || 'Action failed. Download a backup to keep your work.'); }
+function report(error) { notify(error.message?.replace(/\bCollection\b/g,'Saved prompts').replace(/\bworkspace\b/g,'saved prompts').replace(/\bbrief\b/g,'prompt') || 'Action failed. Download a backup to keep your work.'); }
 
-$('#block-library').innerHTML = definitions.map((d, i) => `<button class="library-block" data-add="${d.id}"><strong>${d.name}${i > 3 ? ' (optional)' : ''}</strong><span aria-hidden="true">＋</span></button>`).join('');
+$('#block-library').innerHTML = definitions.map((d, i) => `<button class="library-block" data-add="${d.id}"><strong>${sectionLabels[d.id] ?? d.name}${i > 3 ? ' (optional)' : ''}</strong><span aria-hidden="true">＋</span></button>`).join('');
 $('#block-library').onclick = event => {
   const button = event.target.closest('[data-add]');
   if (!button) return;
-  if (state.draft.blocks.length >= 100) { notify('Maximum 100 blocks per brief.'); return; }
+  if (state.draft.blocks.length >= 100) { notify('Maximum 100 blocks per prompt.'); return; }
   const next = block(button.dataset.add);
   state.draft.blocks.push(next);
   renderBlocks();
@@ -139,7 +141,7 @@ $('#composition').oninput = event => {
   const item = state.draft.blocks.find(b => b.key === event.target.dataset.field);
   if (!item) return;
   item.value = event.target.value;
-  event.target.closest('details').querySelector('summary').textContent = definitions.find(d => d.id === item.type).name + ' · ' + (item.value.replace(/\s+/g,' ').slice(0,70) || 'Empty section');
+  event.target.closest('details').querySelector('summary').textContent = (sectionLabels[item.type] ?? definitions.find(d => d.id === item.type).name) + ' · ' + (item.value.replace(/\s+/g,' ').slice(0,70) || 'Empty section');
   changed();
 };
 $('#composition').onclick = event => {
@@ -156,7 +158,7 @@ $('#composition').onclick = event => {
   notify('Block removed. Undo is available.');
 };
 $('#prompt-name').oninput = event => { state.draft.name = event.target.value; changed(); };
-$('#clear').onclick = () => { replaceDraft({ ...draft(), name:state.draft.name, blocks: [] }); notify('Brief cleared. Undo is available.'); };
+$('#clear').onclick = () => { replaceDraft({ ...draft(), name:state.draft.name, blocks: [] }); notify('Prompt cleared. Undo is available.'); };
 $('#new-prompt').onclick = () => { requestReplacement({...draft(),policy:'ask',outside:false}); };
 $('#undo').onclick = () => {
   const previous = history.undo();
@@ -166,7 +168,7 @@ $('#undo').onclick = () => {
   changed();
   setView('editor');
   $('#prompt-name').focus();
-  notify('Previous brief restored.');
+  notify('Previous prompt restored.');
 };
 $('#templates').onclick = event => {
   const button = event.target.closest('[data-template]');
@@ -203,7 +205,7 @@ $('#prompt-list').onclick = event => {
     renderCollection();
     changed();
     $('#collection-heading').focus();
-    notify(action === 'archive' ? 'Archive status changed. Undo is available.' : 'Collection updated.');
+    notify(action === 'archive' ? 'Archive status changed. Undo is available.' : 'Saved prompts updated.');
   } catch (error) { report(error); }
 };
 $('#rename-form').onsubmit = event => {
@@ -229,7 +231,7 @@ $('#import-file').onchange = async event => {
     renderCollection();
     renderGuided();
     changed();
-    notify('Backup added to the collection, including its working brief. Existing work is preserved.');
+    notify('Backup restored as copies in Saved prompts. Your current prompt is preserved.');
   } catch (error) { report(error); }
   event.target.value = '';
 };
@@ -240,11 +242,11 @@ $('#latest-form').onsubmit = async event => {
   event.preventDefault();
   $('#latest-dialog').close();
   if (event.submitter?.value === 'cancel') return;
-  try { await persistence.flush(); state = persistence.useLatest(); history.items = []; render(); setView('editor'); $('#prompt-name').focus(); notify('Latest workspace loaded.'); }
+  try { await persistence.flush(); state = persistence.useLatest(); history.items = []; render(); setView('editor'); $('#prompt-name').focus(); notify('Latest saved prompts loaded.'); }
   catch (error) { report(error); }
 };
 $('#keep-both').onclick = async () => {
-  try { await persistence.flush(); state = await persistence.keepBoth(); history.items = []; render(); notify('Latest workspace loaded; this tab’s brief and collection are preserved as local copies.'); }
+  try { await persistence.flush(); state = await persistence.keepBoth(); history.items = []; render(); notify('Latest saved prompts loaded; this tab’s prompt and saved prompts are preserved as local copies.'); }
   catch (error) { report(error); }
 };
 $('#view-editor').onclick = () => setView('editor');
@@ -252,7 +254,7 @@ $('#view-preview').onclick = () => setView('preview');
 $('#rendered-tab').onclick = () => previewMode('preview');
 $('#markdown-tab').onclick = () => previewMode('markdown');
 $('#copy').onclick = async () => {
-  try { await navigator.clipboard.writeText(markdown(state.draft)); notify('Prompt copied.'); }
+  try { await navigator.clipboard.writeText(markdown(state.draft)); notify('Prompt copied. Paste it into the AI you use.'); }
   catch {
     setView('preview');
     previewMode('markdown');
@@ -262,7 +264,7 @@ $('#copy').onclick = async () => {
     const selection = getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
-    notify('Clipboard unavailable. Markdown is selected: use your device’s Copy command.');
+    notify('Clipboard unavailable. Your prompt text is selected: use your device’s Copy command.');
   }
 };
 $('#copy-bottom').onclick = $('#copy').onclick;
@@ -270,7 +272,8 @@ $('#download').onclick = () => download(markdown(state.draft), (state.draft.name
 
 function paletteLabel() {
   const dark = document.body.classList.contains('midnight');
-  $('#palette').setAttribute('aria-label', 'Switch to ' + (dark ? 'daylight' : 'midnight') + ' palette');
+  const label = 'Switch to ' + (dark ? 'light' : 'dark') + ' theme';
+  $('#palette').setAttribute('aria-label',label); $('#palette').title = label;
   $('#palette').setAttribute('aria-pressed', dark);
 }
 try { document.body.classList.toggle('midnight', paletteIsDark(storage.getItem('promptly-palette'))); } catch { document.body.classList.add('midnight'); }
@@ -288,7 +291,7 @@ function route(focus = false) {
     if (el.dataset.page === page) el.setAttribute('aria-current', 'page');
     else el.removeAttribute('aria-current');
   });
-  document.title = (page === 'builder' ? 'Edit your brief' : 'Promptly') + ' — Promptly';
+  document.title = page === 'builder' ? 'Make a prompt — Promptly' : page === 'about' ? 'How it works — Promptly' : 'Promptly: build better AI prompts in minutes';
   if (focus) { const heading = $('#' + page + ' h1'); heading.tabIndex = -1; heading.focus(); }
   window.scrollTo(0, 0);
 }
@@ -314,19 +317,19 @@ function renderTemplates() {
  const category = $('#category-filter').value;
  const role = $('#role-filter').value;
  const query = $('#template-search').value.toLowerCase();
- $('#templates').innerHTML = Object.entries(templates).filter(([,t]) => (!category || t.category === category) && (!role || t.roles.includes(role)) && [t.name,t.description,t.deliverable].join(' ').toLowerCase().includes(query)).map(([key,t]) => `<button class="template-card" data-template="${key}" aria-pressed="${state.draft.templateId === key}"><strong>${escape(t.name)}</strong><span>${escape(t.description)}</span><small>${escape(t.deliverable)}</small></button>`).join('') || '<p>No templates match. Clear a filter or start a blank brief.</p>';
- $('#selected-template').textContent = state.draft.templateId ? 'Starting point: '+(templates[state.draft.templateId]?.name ?? state.draft.name)+'. All instructions are editable.' : 'Working draft · blank or custom brief';
+ $('#templates').innerHTML = Object.entries(templates).filter(([,t]) => (!category || t.category === category) && (!role || t.roles.includes(role)) && [t.name,t.description,t.deliverable].join(' ').toLowerCase().includes(query)).map(([key,t]) => `<button class="template-card" data-template="${key}" aria-pressed="${state.draft.templateId === key}"><strong>${escape(t.name)}</strong><span>${escape(t.description)}</span><small>${escape(t.deliverable)}</small></button>`).join('') || '<p>No templates match. Clear a filter or start a blank prompt.</p>';
+ $('#selected-template').textContent = state.draft.templateId ? 'Template: '+(templates[state.draft.templateId]?.name ?? state.draft.name)+'. All instructions are editable.' : 'Pick a template, or write your own prompt';
 }
 function renderGuided() {
  state.draft.policy ??= 'ask'; state.draft.outside ??= false;
- $('#variables').innerHTML = (state.draft.variables ?? []).map(v => `<details class="question-card" data-question="${v.key}"><summary><strong>${escape(v.label)}</strong><span class="question-answer">${escape(v.value.trim().replace(/\s+/g,' ').slice(0,85) || 'Tap to add your context')}</span></summary><div class="question-content"><label for="var-${v.key}">${escape(v.help)}</label><textarea id="var-${v.key}" data-variable="${v.key}" maxlength="100000" aria-describedby="var-help-${v.key}" placeholder="Add what you know. You can come back to this.">${escape(v.value)}</textarea><small id="var-help-${v.key}">${v.required ? 'Recommended for this template. ' : ''}Used wherever {{${v.key}}} appears.</small><button data-drop-variable="${v.key}" type="button" class="quiet">Remove this question</button></div></details>`).join('') || '<p>No guided questions for this brief. Start with your task in Shape the instructions.</p>';
+ $('#variables').innerHTML = (state.draft.variables ?? []).map(v => `<details class="question-card" data-question="${v.key}"><summary><strong>${escape(fieldLabels[v.key] ?? v.label)}</strong><span class="question-answer">${escape(v.value.trim().replace(/\s+/g,' ').slice(0,85) || 'Tap to add your context')}</span></summary><div class="question-content"><label for="var-${v.key}">${escape(v.help)}</label><textarea id="var-${v.key}" data-variable="${v.key}" maxlength="100000" aria-describedby="var-help-${v.key}" placeholder="${escape(exampleFor(v.key,state.draft.templateId))}">${escape(v.value)}</textarea><small id="var-help-${v.key}">${v.required ? 'Useful for this template. ' : ''}Your answer fills this detail throughout the prompt.</small><button data-drop-variable="${v.key}" type="button" class="quiet">Remove this question</button></div></details>`).join('') || '<p>No guided questions for this prompt. Start with your task in Shape the instructions.</p>';
  refreshFocusFlow();
  $('#missing-policy').value = state.draft.policy ?? 'ask';
  $('#outside-info').checked = state.draft.outside ?? false;
  const selected = $('#profile-select').value;
- $('#profile-select').innerHTML = '<option value="">Choose a profile</option>' + (state.profiles ?? []).map(p => `<option value="${escape(p.id)}">${escape(p.name)}</option>`).join('');
+ $('#profile-select').innerHTML = '<option value="">Choose My details</option>' + (state.profiles ?? []).map(p => `<option value="${escape(p.id)}">${escape(p.name)}</option>`).join('');
  $('#profile-select').value = selected;
- $('#included-profiles').innerHTML = (state.draft.profileSnapshots ?? []).map(p => `<details><summary>${escape(p.name)} · included snapshot</summary>${['background','audiences','facts','voice','avoid','example'].map(k => `<label>${escape(k)}<textarea data-snapshot="${escape(p.id)}" data-property="${k}" id="profile-${k}-${escape(p.id)}" maxlength="100000">${escape(p[k])}</textarea></label>`).join('')}<button data-remove-profile="${escape(p.id)}">Remove from brief</button></details>`).join('') || '<p>No profiles included.</p>';
+ $('#included-profiles').innerHTML = (state.draft.profileSnapshots ?? []).map(p => `<details><summary>${escape(p.name)} · copy in this prompt</summary>${['background','audiences','facts','voice','avoid','example'].map(k => `<label>${escape(({background:'Background',audiences:'Who you write for',facts:'Facts you provide',voice:'How you like to sound',avoid:'Words or claims to avoid',example:'Example writing'})[k])}<textarea data-snapshot="${escape(p.id)}" data-property="${k}" id="profile-${k}-${escape(p.id)}" maxlength="100000">${escape(p[k])}</textarea></label>`).join('')}<button data-remove-profile="${escape(p.id)}">Remove from prompt</button></details>`).join('') || '<p>No saved details added.</p>';
 }
 $('#category-filter').innerHTML = '<option value="">All tasks</option>'+categories.map(c => `<option>${escape(c)}</option>`).join('');
 $('#role-filter').innerHTML = '<option value="">All roles</option>'+roles.map(r => `<option>${escape(r)}</option>`).join('');
@@ -365,10 +368,10 @@ function jump(event) {
 $('#section-nav').onclick = jump;
 $('#guidance').onclick = jump;
 $('#replace-cancel').onclick = () => { pendingReplacement = null; $('#replace-dialog').close(); };
-$('#replace-confirm').onclick = () => { $('#replace-dialog').close(); if (pendingReplacement) {setView('editor'); replaceDraft(pendingReplacement); pendingReplacement = null; notify('Working draft replaced. Undo restores the previous draft.');} };
+$('#replace-confirm').onclick = () => { $('#replace-dialog').close(); if (pendingReplacement) {setView('editor'); replaceDraft(pendingReplacement); pendingReplacement = null; notify('Current prompt replaced. Undo restores the previous draft.');} };
 $('#replace-dialog').addEventListener('cancel', () => {pendingReplacement = null;});
-$('#update-prompt').onclick = () => { try { updatePrompt(state,state.draft.savedId); renderCollection(); changed(); notify('Saved prompt updated; previous versions remain available.'); } catch(error) { report(error); } };
-$('#save-template').onclick = () => { try { savePrompt(state,'template'); delete state.draft.savedId; renderCollection(); changed(); notify('Reusable template saved. Create new brief makes a separate copy and clears guided values.'); } catch(error) { report(error); } };
+$('#update-prompt').onclick = () => { try { updatePrompt(state,state.draft.savedId); renderCollection(); changed(); notify('Saved prompt updated. Earlier versions are still available.'); } catch(error) { report(error); } };
+$('#save-template').onclick = () => { try { savePrompt(state,'template'); delete state.draft.savedId; renderCollection(); changed(); notify('Reusable template saved. Create new prompt makes a separate copy and clears guided values.'); } catch(error) { report(error); } };
 const oldUndo = $('#undo').onclick;
 $('#undo').onclick = () => {
  if (collectionUndo) { const saved = state.prompts.find(p => p.id === collectionUndo.id); if (saved) { if (collectionUndo.snapshot) state.prompts[state.prompts.findIndex(p => p.id === saved.id)] = clone(collectionUndo.snapshot); else saved.archived = collectionUndo.archived; } collectionUndo = null; renderCollection(); changed(); notify('Archive change undone.'); } else oldUndo();
@@ -377,26 +380,26 @@ $('#undo').onclick = () => {
 $('#prompt-list').addEventListener('click', () => { $('#undo').disabled = !history.items.length && !collectionUndo; });
 function editProfile(profile) {
  profileId = profile?.id;
- const labels = {name:'Profile name',background:'Business, team or project background',audiences:'Intended audiences',facts:'Approved facts',voice:'Preferred voice',avoid:'Words or claims to avoid',example:'Example writing (style reference only)'};
- $('#profile-fields').innerHTML = Object.entries(labels).map(([k,label]) => `<label>${label}${k === 'name' ? `<input name="${k}" required maxlength="100" value="${escape(profile?.[k] ?? '')}">` : `<textarea name="${k}" maxlength="100000">${escape(profile?.[k] ?? '')}</textarea>`}</label>`).join('');
+ const labels = {name:'Name',background:'Your business, team or project',audiences:'Who you write for',facts:'Facts you provide',voice:'How you like to sound',avoid:'Words or claims to avoid',example:'Example writing (style reference only)'};
+ $('#profile-fields').innerHTML = Object.entries(labels).map(([k,label]) => `<label>${label}${k === 'name' ? `<input name="${k}" required maxlength="100" placeholder="Example: My real estate team" value="${escape(profile?.[k] ?? '')}">` : `<textarea name="${k}" maxlength="100000" placeholder="${escape(({background:'Example: we help people buy and sell homes',audiences:'Example: buyers and sellers with questions about viewings',facts:'Example: our office is open Monday through Friday',voice:'Example: warm, clear and specific',avoid:'Example: avoid guarantees or unsupported claims',example:'Example: paste a short piece of writing and explain what to follow'})[k])}">${escape(profile?.[k] ?? '')}</textarea>`}</label>`).join('');
  $('#profile-dialog').showModal(); $('#profile-fields input').focus();
 }
 $('#new-profile').onclick = () => editProfile();
-$('#edit-profile').onclick = () => { const profile = state.profiles?.find(p => p.id === $('#profile-select').value); if (profile) editProfile(profile); else notify('Choose a saved profile first.'); };
+$('#edit-profile').onclick = () => { const profile = state.profiles?.find(p => p.id === $('#profile-select').value); if (profile) editProfile(profile); else notify('Choose My details first.'); };
 $('#profile-cancel').onclick = () => $('#profile-dialog').close();
 $('#profile-form').onsubmit = event => {
  event.preventDefault();
  state.profiles ??= [];
- if (!profileId && state.profiles.length >= 50) {notify('Maximum 50 profiles.'); return;}
+ if (!profileId && state.profiles.length >= 50) {notify('You can save up to 50 sets of My details.'); return;}
  const profile = {id:profileId ?? id(),...Object.fromEntries(new FormData(event.target))};
  const index = state.profiles.findIndex(p => p.id === profile.id);
  if (index >= 0) state.profiles[index] = profile; else state.profiles.push(profile);
- $('#profile-dialog').close(); renderGuided(); $('#profile-select').value = profile.id; changed(); notify('Profile saved. Existing brief snapshots are unchanged; refresh explicitly when ready.');
+ $('#profile-dialog').close(); renderGuided(); $('#profile-select').value = profile.id; changed(); notify('My details saved. Existing prompts keep their own copy; refresh when ready.');
 };
 $('#include-profile').onclick = () => {
  const profile = state.profiles?.find(p => p.id === $('#profile-select').value);
- if (!profile) {notify('Choose a saved profile first.'); return;}
- try {rememberDraft(); includeProfile(state.draft,profile); renderGuided(); changed(); notify('Profile snapshot included / refreshed. Undo is available.');} catch(error) {report(error);}
+ if (!profile) {notify('Choose My details first.'); return;}
+ try {rememberDraft(); includeProfile(state.draft,profile); renderGuided(); changed(); notify('My details added / refreshed. Undo is available.');} catch(error) {report(error);}
 };
 $('#included-profiles').oninput = event => {
  const profile = state.draft.profileSnapshots?.find(p => p.id === event.target.dataset.snapshot);
@@ -416,12 +419,12 @@ $('#inspect-body').onclick = event => {
  const versionId = event.target.dataset.restoreVersion; if (!versionId) return;
  const saved = state.prompts.find(p => p.id === inspectId);
  const version = saved?.versions?.find(v => v.id === versionId); if (!version) return;
- // Do not replace an unrelated working draft when restoring a collection version.
+ // Do not replace an unrelated current prompt when restoring a collection version.
  try {
   const priorSaved = clone(saved);
   restoreVersion(state,saved.id,versionId);
   collectionUndo = {id:saved.id,snapshot:priorSaved};
-  renderInspect(); renderCollection(); changed(); notify('Version restored as a new saved version. Working draft preserved. Undo is available; open the saved prompt to edit.');
+  renderInspect(); renderCollection(); changed(); notify('Version restored as a new saved version. Current prompt preserved. Undo is available; open the saved prompt to edit.');
  } catch(error) {report(error);}
 };
 $('#inspect-body').onsubmit = event => {
@@ -429,7 +432,7 @@ $('#inspect-body').onsubmit = event => {
  try { attachResult(state,inspectId,event.target.dataset.resultVersion,Object.fromEntries(new FormData(event.target))); changed(); notify('Result attached to this saved version.'); } catch(error) {report(error);}
 };
 function intentionalExport(action) {
- if (checks(state.draft).length) { pendingExport = action; $('#unfinished-dialog').showModal(); } else action();
+ if (checks(state.draft).length) { $('#unfinished-confirm').textContent = action === copyAction ? 'Copy anyway' : 'Save anyway'; pendingExport = action; $('#unfinished-dialog').showModal(); } else action();
 }
 const copyAction = $('#copy').onclick;
 const downloadAction = $('#download').onclick;

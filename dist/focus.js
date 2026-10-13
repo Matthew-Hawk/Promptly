@@ -1,4 +1,4 @@
-// Presentation only: focusing and minimizing never changes saved brief content.
+// Presentation only: focusing and minimizing never changes saved prompt content.
 let questionKey;
 const questions = () => [...document.querySelectorAll('#variables > details')];
 const stages = () => [...document.querySelectorAll('#focus-flow > details')];
@@ -23,10 +23,10 @@ function updateQuestionControls() {
   const index = items.findIndex(item => item.open);
   document.querySelector('#question-back').disabled = index <= 0;
   document.querySelector('#question-next').disabled = !items.length;
-  document.querySelector('#question-next').textContent = index === items.length-1 ? 'Shape instructions →' : 'Next detail →';
+  document.querySelector('#question-next').textContent = index === items.length-1 ? 'Customize prompt →' : 'Next detail →';
   const filled = items.filter(item => item.querySelector('textarea').value.trim()).length;
   document.querySelector('#question-progress').textContent = items.length ? `${filled} of ${items.length} details filled · you can skip any detail` : 'Start with your task in the instructions below, or choose a template for guided questions.';
-  document.querySelector('#details-summary').textContent = items.length ? `${filled} of ${items.length} details filled` : 'Optional context, preferences and profiles';
+  document.querySelector('#details-summary').textContent = items.length ? `${filled} of ${items.length} details filled` : 'Optional facts, preferences and My details';
 }
 export function refreshFocusFlow() {
   const items = questions();
