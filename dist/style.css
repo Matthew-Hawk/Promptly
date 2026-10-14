@@ -1764,3 +1764,87 @@ header nav a {min-width:44px;justify-content:center;}
 .flying-prompt {width:230px;max-width:45%;font-size:11px;line-height:1.5;box-shadow:var(--shadow);}
 @media(max-width:767px) {.flying-prompt {width:160px;font-size:10px;}}
 .mock-message {border:1px solid transparent;}
+/* A centralized guided workspace: one decision, one input, one next action. */
+body.builder-guided #builder > .starting-points,
+body.builder-guided #builder > .builder-controls,
+body.builder-guided #builder > .compact-checks,
+body.builder-guided #builder > .workshop,
+body.builder-guided #builder > .bottom-copy,
+body.builder-guided #builder > .collection,
+body.builder-guided #builder > .local-note {display:none;}
+#guided-builder[hidden] {display:none!important;}
+#builder .builder-heading {max-width:820px;margin:0 auto 12px;padding-top:20px;padding-bottom:8px;align-items:center;}
+body.builder-guided #builder .builder-heading .eyebrow,
+body.builder-guided #builder .builder-heading p {display:none;}
+body.builder-guided #builder .builder-heading h1 {font-size:24px;}
+body.builder-guided #builder .builder-heading .draft-state {font-size:12px;}
+.guided-builder {max-width:820px;margin:0 auto 24px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:var(--shadow);padding:22px;position:relative;}
+.guide-top {display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px;}
+.guide-step {font-size:13px;font-weight:700;color:var(--accent);}
+.guide-tools {display:flex;gap:8px;align-items:center;}
+.guide-menu {position:relative;}
+.guide-menu > summary {font-size:13px;padding:10px;white-space:nowrap;min-height:44px;}
+.guide-menu-panel {position:absolute;right:0;top:100%;width:280px;max-width:calc(100vw - 64px);max-height:310px;overflow:auto;z-index:25;padding:8px;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);background:var(--surface);}
+.guide-menu-panel button {display:block;width:100%;text-align:left;margin:3px 0;min-height:44px;}
+.answer-overview strong,.answer-overview span {display:block;}
+.answer-overview span {font-size:13px;color:var(--muted);font-weight:400;overflow-wrap:anywhere;line-height:1.5;margin-top:4px;}
+.guide-content {min-height:350px;padding:24px 0 18px;}
+.guide-content h2 {font-size:28px;line-height:1.25;letter-spacing:-.6px;margin:0 0 12px;}
+.guide-content h2:focus {outline:none;}
+.guide-description {font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:18px;max-width:660px;}
+.guide-task-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:300px;overflow:auto;padding:3px;}
+.guide-task-list button {padding:16px;text-align:left;background:var(--wash);border:1px solid var(--line);border-radius:12px;min-height:88px;}
+.guide-task-list button strong {display:block;font-size:16px;margin-bottom:5px;}
+.guide-task-list button span {display:block;font-size:13px;color:var(--muted);line-height:1.4;}
+.guide-task-list button:hover {border-color:var(--accent);}
+.guide-footer {display:flex;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:16px;}
+.guide-footer .primary {margin-left:auto;font-weight:700;}
+.guide-footer button {min-height:46px;}
+.guide-local {font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;}
+.guide-template-label {font-size:13px;color:var(--accent);font-weight:600;margin-bottom:12px;}
+.guide-choice-hint,.guide-answer-note {font-size:13px;line-height:1.5;color:var(--muted);margin:10px 0;}
+.guide-answer-choices {display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.guide-answer-choices button {border:1px solid var(--line);background:var(--wash);font-size:14px;min-height:44px;}
+#guide-answer {width:100%;min-height:150px;max-height:300px;resize:vertical;border:1px solid var(--muted);border-radius:12px;background:var(--bg);color:var(--ink);padding:14px;font-size:17px;line-height:1.6;}
+.guide-name,.guide-search {display:block;font-size:14px;margin:12px 0;}
+.guide-name input,.guide-search input {display:block;width:100%;padding:10px;min-height:44px;background:var(--bg);color:var(--ink);border:1px solid var(--muted);border-radius:8px;margin-top:6px;}
+#guide-output {max-height:260px;overflow:auto;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);white-space:pre-wrap;font:14px/1.7 monospace;}
+.guide-review-checks {margin:10px 0;border:1px solid var(--line);border-radius:8px;}
+.guide-review-checks > summary {font-size:14px;}
+.guide-review-checks button {display:block;text-align:left;width:100%;font-size:14px;}
+.guide-ready {font-size:14px;color:var(--accent);margin:10px 0;}
+@media(max-width:600px) {
+ body.builder-guided #builder .builder-heading {display:flex;gap:8px;padding-top:14px;}
+ body.builder-guided #builder .builder-heading h1 {font-size:19px;}
+ body.builder-guided #builder .builder-heading .draft-state {margin:0;max-width:112px;font-size:11px;}
+ .guided-builder {padding:14px;border-radius:14px;}
+ .guide-top {flex-wrap:wrap;gap:4px;padding-bottom:8px;}
+ .guide-tools {margin-left:auto;}
+ .guide-menu > summary {font-size:12px;padding:8px;}
+ .guide-content {min-height:300px;padding:18px 0 12px;}
+ .guide-content h2 {font-size:23px;}
+ .guide-description {font-size:14px;margin-bottom:12px;}
+ .guide-task-list {gap:8px;max-height:280px;}
+ .guide-task-list button {padding:12px;min-height:84px;}
+ .guide-task-list button strong {font-size:14px;}
+ .guide-task-list button span {font-size:12px;}
+ .guide-footer {gap:7px;flex-wrap:wrap;}
+ .guide-footer button {font-size:13px;padding:10px;}
+ #guide-answer {min-height:140px;font-size:16px;}
+ .guide-answer-choices {gap:6px;}
+ .guide-answer-choices button {font-size:13px;padding:10px;}
+ .guide-menu-panel {max-width:calc(100vw - 56px);width:260px;}
+ #guide-output {max-height:230px;}
+}
+body.builder-guided #builder > #toast {display:none;}
+#guide-feedback:empty {display:none;}
+#guide-feedback {padding:10px 12px;margin:0 0 12px;border:1px solid var(--accent);border-radius:8px;background:var(--wash);font-size:14px;line-height:1.5;}
+@media(max-width:600px) {
+ .guide-task-list button {min-height:64px;}
+ .guide-task-list button span {display:none;}
+ .guide-task-list button strong {margin:0;}
+}
+.guide-custom-answer > summary,.guide-change-starter > summary,.guide-name-options > summary {font-size:13px;color:var(--muted);padding:10px 0;min-height:44px;}
+.guide-writing-own .guide-choice-hint,.guide-writing-own .guide-content > .guide-answer-choices {display:none;}
+.guide-name-options {margin:6px 0;}
+@media(max-width:600px) {#guide-output {max-height:clamp(120px,24svh,210px);}}

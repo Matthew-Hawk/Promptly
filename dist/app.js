@@ -5,6 +5,7 @@ import './motion.js';
 import './walkthrough.js';
 import { sectionLabels, fieldLabels, exampleFor, checkText } from './presentation.js';
 import { focusField, refreshFocusFlow, openStage } from './focus.js';
+import { createGuide } from './guide.js';
 
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -18,12 +19,14 @@ let pendingReplacement;
 let pendingExport;
 let collectionUndo;
 let currentView = 'editor';
+let guide;
 let storage;
 try { storage = localStorage; } catch { storage = { getItem() { throw new Error('Storage denied.'); } }; }
 const persistence = new Persistence(storage, navigator.locks, renderStatus);
 state = persistence.load();
 
 function notify(message) {
+  guide?.announce(message);
   $('#toast').textContent = message;
   $('#toast').classList.add('show');
   clearTimeout(notify.timer);
@@ -40,11 +43,13 @@ function renderStatus() {
   $('#recovery').hidden = persistence.status !== 'recovery';
   $('#conflict').hidden = persistence.status !== 'conflict';
   $('#storage-note').hidden = persistence.status !== 'unavailable';
+  guide?.refresh();
 }
 function changed() {
   persistence.edit();
   updatePreview();
   $('#undo').disabled = !history.items.length && !collectionUndo;
+  guide?.refresh();
 }
 function rememberDraft() { collectionUndo = null; history.remember(state.draft); }
 function replaceDraft(next) {
@@ -55,7 +60,7 @@ function replaceDraft(next) {
   changed();
   $('#template-browser').open = false;
   openStage(state.draft.variables?.length ? 'brief-details' : 'instructions-stage');
-  $('#prompt-name').focus();
+  if(guide?.visible()) guide.focusCurrent(); else $('#prompt-name').focus();
 }
 function requestReplacement(next) {
   if (state.draft.blocks.some(b => b.value.trim()) || state.draft.profileSnapshots?.length || state.draft.variables?.some(v => v.value.trim())) {
@@ -90,6 +95,7 @@ function render() {
   if (!state.draft.variables?.length) { $('#brief-details').open = false; $('#instructions-stage').open = true; $('#finish-stage').open = false; }
   updatePreview();
   $('#undo').disabled = !history.items.length && !collectionUndo;
+  guide?.refresh();
 }
 function updatePreview() {
   const content = markdown(state.draft);
@@ -259,9 +265,11 @@ $('#copy').onclick = async () => {
   catch {
     setView('preview');
     previewMode('markdown');
-    $('#preview-output').focus();
+    if (guide?.visible()) guide.review();
+    const target = guide?.visible() ? $('#guide-output') : $('#preview-output');
+    target.focus();
     const range = document.createRange();
-    range.selectNodeContents($('#preview-output'));
+    range.selectNodeContents(target);
     const selection = getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
@@ -444,3 +452,23 @@ $('#unfinished-cancel').onclick = () => {pendingExport = null; $('#unfinished-di
 $('#unfinished-confirm').onclick = () => {$('#unfinished-dialog').close(); const action = pendingExport; pendingExport = null; action?.();};
 $('#unfinished-dialog').addEventListener('cancel', () => {pendingExport = null;});
 renderTemplates();
+guide = createGuide({
+ draft:()=>state.draft, templates,
+ checks:()=>checks(state.draft).map(note=>({...note,message:checkText(note,state.draft)})),
+ markdown:()=>markdown(state.draft),
+ canUndo:()=>history.items.length || collectionUndo,
+ choose:key=>requestReplacement(instantiate(templates[key])),
+ blank:()=>$('#new-prompt').click(),
+ answer:(question,value)=>{
+  const field=question.variable ? $('#var-'+CSS.escape(question.key)) : $('#field-'+CSS.escape(question.key));
+  if(field) {field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));}
+ },
+ rename:value=>{$('#prompt-name').value=value;$('#prompt-name').dispatchEvent(new Event('input',{bubbles:true}));},
+ copy:()=>$('#copy').click(), export:()=>$('#download').click(), save:()=>$('#save-prompt').click(), undo:()=>$('#undo').click(),
+ jump:target=>{const button=[...$('#guidance').querySelectorAll('[data-jump]')].find(b=>b.dataset.jump===target);button?.click();},
+ advanced:action=>{
+  setView('editor');
+  if(action==='saved') $('#my-prompts').click();
+  else if(action==='details') {openStage('brief-details');$('#extra-options').open=true;$('#extra-options').querySelectorAll('details').forEach(details=>{details.open=true;});$('#extra-options').scrollIntoView({block:'start'});}
+ },
+});

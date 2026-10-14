@@ -18,9 +18,9 @@ No account. No API key. Your work stays on your device.
 
 ## 🧩 Build a prompt. Keep the useful parts.
 
-1. **Pick a task.** Browse 17 task templates with optional role filters and search, or start a blank prompt.
-2. **Add your facts.** Define the task, audience, boundaries, and output. Fill labeled variables with verified information; edit any section directly.
-3. **Review and export.** Switch to the prompt preview, then copy or download Markdown for your preferred AI.
+1. **Pick a task.** Click a popular task to start its instructions, browse all 17 templates, or write your own task.
+2. **Follow the questions.** Answer one question at a time. Click suggested answers to fill a detail and continue, and add your own verified facts.
+3. **Review and export.** Read your prompt in the same panel, then copy or download Markdown for your preferred AI.
 4. **Save it for next time.** Save a completed prompt or reusable template. Update prompts with version history, or save as new.
 
 ![The prompt editor with a homepage template, guided fields, and save-to-collection controls](ReadME_Assets/editor.png)

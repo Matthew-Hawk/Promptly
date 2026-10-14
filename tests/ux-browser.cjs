@@ -35,6 +35,8 @@ module.exports = async function checkUx(browser) {
   }
   const started=Date.now();
   await page.getByRole('link',{name:'Make a prompt',exact:true}).click();
+  assert(await page.locator('[data-guide-template=email]').isVisible(),'New visitor does not see task choices');
+  await page.locator('#guide-advanced').evaluate(el=>el.click());
   assert(await page.locator('#template-browser').evaluate(el=>el.open),'New visitor does not see templates');
   await page.locator('#template-search').fill('listing');
   await page.locator('[data-template=listing]').click();

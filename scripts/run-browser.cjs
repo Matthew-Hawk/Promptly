@@ -42,6 +42,7 @@ const server = spawn(process.execPath,['scripts/browser-checks.cjs'],{stdio:'inh
  await page.emulateMedia({reducedMotion:'no-preference'});
  await page.waitForFunction(() => !document.querySelector('#ambient-toggle').disabled);
  await page.goto('http://127.0.0.1:5175/fixture.html#builder');
+ await page.locator('#guide-advanced').evaluate(el=>el.click());
  await page.locator('#instructions-stage > summary').click();
  await page.locator('#section-nav button').first().click();
  await page.locator('#composition textarea').first().fill('Typing stays steady');
@@ -78,6 +79,7 @@ const server = spawn(process.execPath,['scripts/browser-checks.cjs'],{stdio:'inh
  console.log('PASS: Focused questions, next/back, collapsed content preservation, check jumps and review flow');
  await require('../tests/ux-browser.cjs')(browser);
  await require('../tests/walkthrough-browser.cjs')(browser);
+ await require('../tests/guide-browser.cjs')(browser);
  if (process.env.SCREENSHOT_DIR) {
   await page.setViewportSize({width:1400,height:1000});
   if (!await page.locator('body').evaluate(el => el.classList.contains('midnight'))) await page.locator('#palette').click();

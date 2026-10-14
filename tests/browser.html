@@ -22,6 +22,7 @@ async function frame(failure = false, width = 390) {
   element.src = '/fixture.html' + (failure ? '?clipboard-failure' : '') + '#builder';
   document.querySelector('#frames').append(element);
   await until(() => element.contentDocument?.querySelector('textarea') && element.contentDocument.querySelector('#view-editor').getAttribute('aria-pressed') === 'true');
+  element.contentDocument.querySelector('#guide-advanced')?.click();
   return element;
 }
 function field(element, value) {

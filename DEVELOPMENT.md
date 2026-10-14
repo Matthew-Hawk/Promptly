@@ -4,7 +4,7 @@ A browser-local workshop for reusable AI briefs across common workplace tasks. N
 
 ## Build and reuse a brief
 
-Choose a task template or blank brief. Browse five categories with optional role filters and search. Guided values replace named variables consistently; the advanced section editor remains independent and fully editable. Add, remove, collapse or navigate sections, and optionally show a live preview beside the editor on wide screens. Copy/export stays available; intentional unfinished exports require a clear confirmation. See the workplace update below for editing and collection behavior.
+Choose a task button to start a brief, then answer one question at a time in the same central panel. Starter-answer buttons fill editable preferences and immediately advance; facts and source material require the user's own information. Browse all 17 templates through See all tasks, or write a custom task. Your answers provides direct navigation, and More options opens the full editor, saved prompts, profiles and downloads. The full editor retains category/role filters, editable sections and optional live preview. Intentional unfinished exports require a clear confirmation.
 
 **My prompts** contains completed prompts and reusable templates. Save as new creates a snapshot; Update adds a saved version. Preview, search, tag, favorite, rename, duplicate, archive or restore entries. Templates create separate working briefs. Version restore preserves unrelated working work and can be undone. Draft Undo is bounded to 20 entries and remains in memory only. Copying falls back to selected Markdown when clipboard permission is denied.
 
@@ -58,13 +58,14 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/walkthrough.js` | Fictional about-page walkthrough scenarios, visibility-gated playback and route cleanup |
 | `dist/presentation.js` | UI-only vocabulary, guided examples and audience example selection |
 | `dist/focus.js` | Focused question navigation and expandable builder steps; presentation only |
+| `dist/guide.js` | Default task discovery, starter answers, one-question flow and centralized review; presentation only |
 | `dist/motion.js` | Viewport entrances, dynamic content, ambient pause and reduced-motion preferences |
 | `dist/persistence.js` | Debounce, revision checks, Web Locks, and conflict resolution |
 | `dist/app.js` | DOM rendering, event handling, accessible focus, clipboard, downloads |
 | `dist/social-preview.png` | Homepage image for shared links (1200 × 630) |
 | `serve.cjs` | Loopback static development server |
 
-The deployable artifact is the complete `dist/` directory, including all eight JavaScript modules. A reproducible artifact package can be made from the repository root:
+The deployable artifact is the complete `dist/` directory, including all nine JavaScript modules. A reproducible artifact package can be made from the repository root:
 
 ```sh
 npm run check
@@ -110,7 +111,9 @@ Homepage reveals include the header controls, individual hero copy/actions and i
 
 ## Focused editing flow
 
-The builder now keeps three steps visible as summaries: Make it yours, Shape the instructions, and Review & save. Opening a step minimizes its peers. Guided questions use the same stored variables and field IDs, but only one question expands into a larger text area; other questions show concise answer summaries. Previous/Next controls switch questions without requiring an answer, and the final Next opens the instruction editor. Instructions likewise expand one section at a time. Blank and legacy briefs without guided fields start with the instruction editor.
+The default builder now uses `guide.js` for task discovery, one-question navigation and review in a centralized panel. Choosing a task creates its starting instructions; starter-answer buttons fill preferences and advance immediately. Users supply facts and source text themselves. Your answers jumps to earlier details, and More options exposes the full editor described below. Guide position is presentation state; drafts, backups and saved versions retain the existing schema. `tests/guide-browser.cjs` checks keyboard task selection, starters, custom answers, safe rendering, mobile navigation bounds, copying, clipboard fallback, saving/reloading, replacement confirmation, Undo and return from the full editor.
+
+The full editor keeps three steps visible as summaries: Make it yours, Shape the instructions, and Review & save. Opening a step minimizes its peers. Guided questions use the same stored variables and field IDs, but only one question expands into a larger text area; other questions show concise answer summaries. Previous/Next controls switch questions without requiring an answer, and the final Next opens the instruction editor. Instructions likewise expand one section at a time. Blank and legacy briefs without guided fields start with the instruction editor.
 
 Templates, completeness messages and optional profile/variable/policy settings stay compact until opened. Check links expand the correct step and question before focusing the input. Adding/removing a block also opens its editor; Undo and saved-data behavior remain unchanged. Review & save contains the existing saving actions and a direct preview button. Live preview remains optional on wide screens. Focus state is presentation only and is not included in stored drafts or backups. Smooth transitions respect reduced motion.
 
