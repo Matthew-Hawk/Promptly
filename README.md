@@ -18,8 +18,8 @@ No account. No API key. Your work stays on your device.
 
 ## 🧩 Build a prompt. Keep the useful parts.
 
-1. **Pick a task.** Choose learning, discovery, creativity, planning, strategy, or code to start its instructions, browse all 22 templates, or write your own task.
-2. **Follow the questions.** Answer one question at a time. Click suggested answers to fill a detail and continue, and add your own verified facts.
+1. **Pick a task.** Choose shopping, learning, writing, planning, places, or ideas to start its instructions, browse all 27 templates, or write your own task.
+2. **Follow the questions.** Click through a few choices for your goal, preferences, and style. Select multiple priorities when helpful, and type only the details you need. Watch your request take shape as you go.
 3. **Review and export.** Read your prompt in the same panel, then copy or download Markdown for your preferred AI.
 4. **Save it for next time.** Save a completed prompt or reusable template. Update prompts with version history, or save as new.
 

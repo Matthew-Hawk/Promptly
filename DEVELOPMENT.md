@@ -4,7 +4,7 @@ A browser-local workshop for reusable AI briefs across learning, everyday life, 
 
 ## Build and reuse a brief
 
-Choose a task button to start a brief, then answer one question at a time in the same central panel. Starter-answer buttons fill editable preferences and immediately advance; facts and source material require the user's own information. Browse all 22 templates through Explore all starters, or write a custom task. Your answers provides direct navigation, and More options opens the full editor, saved prompts, profiles and downloads. The full editor retains category/role filters, editable sections and optional live preview. Intentional unfinished exports require a clear confirmation.
+Choose a task button to start a brief, then answer one question at a time in the same central panel. Starter-answer buttons fill editable preferences and immediately advance; facts and source material require the user's own information. Browse all 27 templates through Explore all starters, or write a custom task. Your answers provides direct navigation, and More options opens the full editor, saved prompts, profiles and downloads. The full editor retains category/role filters, editable sections and optional live preview. Intentional unfinished exports require a clear confirmation.
 
 **My prompts** contains completed prompts and reusable templates. Save as new creates a snapshot; Update adds a saved version. Preview, search, tag, favorite, rename, duplicate, archive or restore entries. Templates create separate working briefs. Version restore preserves unrelated working work and can be undone. Draft Undo is bounded to 20 entries and remains in memory only. Copying falls back to selected Markdown when clipboard permission is denied.
 
@@ -58,6 +58,7 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/walkthrough.js` | Fictional about-page walkthrough scenarios, visibility-gated playback and route cleanup |
 | `dist/presentation.js` | UI-only vocabulary, guided examples and audience example selection |
 | `dist/focus.js` | Focused question navigation and expandable builder steps; presentation only |
+| `dist/choices.js` | Click-first everyday choices, question copy and small prompt-building explanations |
 | `dist/guide.js` | Default task discovery, starter answers, one-question flow and centralized review; presentation only |
 | `dist/motion.js` | Viewport entrances, dynamic content, ambient pause and reduced-motion preferences |
 | `dist/persistence.js` | Debounce, revision checks, Web Locks, and conflict resolution |
@@ -65,7 +66,7 @@ Open http://127.0.0.1:5175/checks.html and verify every row says PASS. This fixt
 | `dist/social-preview.png` | Homepage image for shared links (1200 × 630) |
 | `serve.cjs` | Loopback static development server |
 
-The deployable artifact is the complete `dist/` directory, including all nine JavaScript modules. A reproducible artifact package can be made from the repository root:
+The deployable artifact is the complete `dist/` directory, including all ten JavaScript modules. A reproducible artifact package can be made from the repository root:
 
 ```sh
 npm run check
@@ -138,3 +139,11 @@ Reduced motion disables autoplay and shows final, readable panels. At desktop wi
 Discovery keeps the six-card guided layout and presents goals across learning, food discovery, creativity, planning, market strategy and scripting. Five new templates join the existing library. Each has relevant questions, examples and optional starter answers; locations, market facts and code are supplied by the user. Learning encourages explanation and practice, dining requests current sources with an honest browsing fallback, and scripting includes side effects, dry runs and tests. These templates allow explicitly attributed outside knowledge through the existing source-policy flag; existing templates retain their previous policy. Promptly itself still makes no AI or search calls.
 
 The homepage starts with a school example and offers everyday life, real estate and code examples. Intent cards use existing palette tokens, visible example ideas and reduced-motion-aware hover and question transitions. Browser checks cover all six discovery routes through review, mobile discovery controls and the new source policies. Existing drafts and backups remain compatible.
+
+## Click-first everyday builder
+
+The six starting cards now cover shopping/comparison, learning, writing/rewriting, everyday planning, dining and ideas. Shopping and writing offer a two-button branch before creating a draft. Five new recipes keep each flow to three or four questions. Single-choice buttons fill and advance; multi-select priorities and dining preferences persist newline-separated values through the existing variable input handler and advance with Continue. Every field remains editable through a custom answer. Source text, product shortlists and locations still ask for real user input. Professional templates remain searchable through Explore all starters.
+
+A compact Your prompt, taking shape disclosure updates during choices and typing, and brief explanations connect goals, constraints, source material and tone to the resulting request. This introduces no AI inference or network requests. Shopping asks the eventual AI for verified models, prices, availability and links, with an explicit fallback when browsing is unavailable and compatibility questions where needed. Currency presets explicitly use US dollars and custom answers accept other currencies.
+
+Guided review and Copy use `requestText` for a readable request without generated document headings. The full editor and Markdown downloads retain `markdown`. Both serializers preserve reference quoting, missing-information and source policies, and included profile snapshots. No storage or backup schema changed. New browser checks exercise zero-typing shopping/writing/planning, paste-once rewriting/comparison, toggling priorities, custom edits, live preview, exact clipboard text (normalizing platform line endings), saved selections/reload, safe rendering and phone navigation. The Node suite also checks readable exports and recipe source policies.

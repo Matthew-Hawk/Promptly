@@ -1,4 +1,4 @@
-import { definitions, block, draft, clone, markdown, checks, templates, History, savePrompt, duplicatePrompt, backup, importBackup, instantiate, validateDraft, paletteIsDark, defineVariable, id, includeProfile, updatePrompt, restoreVersion, attachResult } from './core.js';
+import { definitions, block, draft, clone, markdown, requestText, checks, templates, History, savePrompt, duplicatePrompt, backup, importBackup, instantiate, validateDraft, paletteIsDark, defineVariable, id, includeProfile, updatePrompt, restoreVersion, attachResult } from './core.js';
 import { categories, roles } from './library.js';
 import { Persistence, STORAGE_KEY } from './persistence.js';
 import './motion.js';
@@ -261,7 +261,7 @@ $('#view-preview').onclick = () => setView('preview');
 $('#rendered-tab').onclick = () => previewMode('preview');
 $('#markdown-tab').onclick = () => previewMode('markdown');
 $('#copy').onclick = async () => {
-  try { await navigator.clipboard.writeText(markdown(state.draft)); notify('Prompt copied. Paste it into the AI you use.'); }
+  try { await navigator.clipboard.writeText(guide?.visible() ? requestText(state.draft) : markdown(state.draft)); notify('Prompt copied. Paste it into the AI you use.'); }
   catch {
     setView('preview');
     previewMode('markdown');
@@ -455,7 +455,7 @@ renderTemplates();
 guide = createGuide({
  draft:()=>state.draft, templates,
  checks:()=>checks(state.draft).map(note=>({...note,message:checkText(note,state.draft)})),
- markdown:()=>markdown(state.draft),
+ text:()=>requestText(state.draft),
  canUndo:()=>history.items.length || collectionUndo,
  choose:key=>requestReplacement(instantiate(templates[key])),
  blank:()=>$('#new-prompt').click(),
