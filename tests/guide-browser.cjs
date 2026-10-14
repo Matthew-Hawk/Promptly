@@ -11,6 +11,7 @@ module.exports=async function checkGuide(browser) {
   assert.equal(await page.locator('[data-guide-template]').count(),1);
   await page.locator('#guide-all').click();
   if(process.env.SCREENSHOT_DIR)await page.locator('#builder').screenshot({path:process.env.SCREENSHOT_DIR+'/guide-discovery.png'});
+  await page.locator('#guide-all').click();await page.locator('#guide-search').fill('Email or announcement');
   await page.locator('[data-guide-template=email]').focus();await page.keyboard.press('Enter');
   assert.equal(await page.locator('#guide-heading').innerText(),'Who is it for?');
   await page.setViewportSize({width:360,height:844});
@@ -70,6 +71,7 @@ module.exports=async function checkGuide(browser) {
   await page.locator('#return-to-guide').click();assert(await page.locator('#guide-output').isVisible());
   await page.locator('#guide-back').click();
   for(let i=0;i<5;i++)await page.locator('#guide-back').click();
+  await page.locator('#guide-all').click();await page.locator('#guide-search').fill('Customer reply');
   await page.locator('[data-guide-template=reply]').click();assert(await page.locator('#replace-dialog').isVisible());
   await page.locator('#replace-cancel').click();assert(await page.locator('#guide-resume').isVisible());
   await page.locator('[data-guide-template=reply]').click();await page.locator('#replace-confirm').click();
@@ -78,6 +80,32 @@ module.exports=async function checkGuide(browser) {
   assert.deepEqual(errors,[]);
   console.log('PASS: Guided task discovery, click-fill-advance starters, facts guard, centralized mobile controls, back/overview edits, copy/save/reload, replacement guard, Undo and full-editor return');
  } finally {await context.close();}
+ const broad=await browser.newContext({viewport:{width:360,height:844},reducedMotion:'reduce'});const discover=await broad.newPage();
+ try {
+  for(const key of ['study','dining','creative','project','strategy','script']) {
+   await discover.goto('http://127.0.0.1:5175/fixture.html#builder');
+   await discover.evaluate(()=>localStorage.clear());await discover.reload();await discover.evaluate(()=>scrollTo(0,0));
+   assert(await discover.locator('[data-guide-template='+key+']').isVisible());
+   assert(await discover.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   const footer=await discover.locator('.guide-footer').boundingBox();assert(footer.y+footer.height<=844,'Discovery requires scrolling at phone width');
+   if(process.env.SCREENSHOT_DIR && key==='study')await discover.screenshot({path:process.env.SCREENSHOT_DIR+'/broad-discovery-mobile.png'});
+   await discover.locator('[data-guide-template='+key+']').click();
+   if(key==='dining')assert.equal(await discover.locator('[data-guide-value]').count(),0,'Location must not be replaced by a generic business suggestion');
+   for(let i=0;i<6 && !await discover.locator('#guide-output').count();i++) {
+    const choices=discover.locator('[data-guide-value]');
+    if(await choices.count())await choices.first().click();
+    else {await discover.locator('#guide-answer').fill(key==='script'?'Audit accounts and export a CSV; do not change accounts.':'My supplied detail');await discover.locator('#guide-next').click();}
+   }
+   assert(await discover.locator('#guide-output').isVisible(),key+' did not reach review');
+   const text=await discover.locator('#guide-output').innerText();
+   if(key!=='project')assert(text.includes('Outside information is allowed'),key+' cannot use general knowledge or research');
+   if(key==='study')assert(text.includes('Wait for my attempt'));
+   if(key==='dining')assert(text.includes('do not fabricate restaurants'));
+   if(key==='script')assert(text.includes('dry-run'));
+   await discover.waitForFunction(()=>document.querySelector('#save-status').textContent==='Saved in this browser');
+  }
+  console.log('PASS: Learning, everyday discovery, creative, planning, strategy and code pathways; phone discovery bounds and appropriate knowledge policies');
+ } finally {await broad.close();}
  const fallback=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'});const p=await fallback.newPage();
  try {
   await p.goto('http://127.0.0.1:5175/fixture.html?clipboard-failure#builder');

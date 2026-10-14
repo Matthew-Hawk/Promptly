@@ -1,10 +1,10 @@
 # ▦ promptly.
 
-A browser-local workshop for reusable AI briefs across common workplace tasks. No account, API key, AI calls, or content analytics. The green-and-cream and midnight palettes remain available.
+A browser-local workshop for reusable AI briefs across learning, everyday life, creative projects, work and code. No account, API key, AI calls, or content analytics. The green-and-cream and midnight palettes remain available.
 
 ## Build and reuse a brief
 
-Choose a task button to start a brief, then answer one question at a time in the same central panel. Starter-answer buttons fill editable preferences and immediately advance; facts and source material require the user's own information. Browse all 17 templates through See all tasks, or write a custom task. Your answers provides direct navigation, and More options opens the full editor, saved prompts, profiles and downloads. The full editor retains category/role filters, editable sections and optional live preview. Intentional unfinished exports require a clear confirmation.
+Choose a task button to start a brief, then answer one question at a time in the same central panel. Starter-answer buttons fill editable preferences and immediately advance; facts and source material require the user's own information. Browse all 22 templates through Explore all starters, or write a custom task. Your answers provides direct navigation, and More options opens the full editor, saved prompts, profiles and downloads. The full editor retains category/role filters, editable sections and optional live preview. Intentional unfinished exports require a clear confirmation.
 
 **My prompts** contains completed prompts and reusable templates. Save as new creates a snapshot; Update adds a saved version. Preview, search, tag, favorite, rename, duplicate, archive or restore entries. Templates create separate working briefs. Version restore preserves unrelated working work and can be undone. Draft Undo is bounded to 20 entries and remains in memory only. Copying falls back to selected Markdown when clipboard permission is denied.
 
@@ -132,3 +132,9 @@ Playback starts only while the stage is at least 40% visible on `#about`, the br
 Reduced motion disables autoplay and shows final, readable panels. At desktop widths all three storyboard panels are visible, with the selected one outlined; below 768px a single panel is shown and numbered controls switch it. Normal selectable HTML captions explain every step and the AI handoff outside the decorative, aria-hidden stage. Without IntersectionObserver, the static storyboard remains usable. Light/dark tokens and 44px controls follow the existing theme.
 
 `tests/walkthrough-browser.cjs`, called by the normal browser runner, verifies a full loop, paused typing, visibility gating, simulated hidden-tab events, route cleanup, scenario timing, keyboard controls, reduced-motion panels, responsive layouts, theme contrast, accessible captions, no external requests, and unchanged prompt storage. Physical screen-reader and first-time-user comprehension checks remain manual. The added component source (JS, CSS and markup) is below the requested 30 KB uncompressed target. No builder UI, storage schema, backups, exports or routes changed.
+
+## Broader discovery
+
+Discovery keeps the six-card guided layout and presents goals across learning, food discovery, creativity, planning, market strategy and scripting. Five new templates join the existing library. Each has relevant questions, examples and optional starter answers; locations, market facts and code are supplied by the user. Learning encourages explanation and practice, dining requests current sources with an honest browsing fallback, and scripting includes side effects, dry runs and tests. These templates allow explicitly attributed outside knowledge through the existing source-policy flag; existing templates retain their previous policy. Promptly itself still makes no AI or search calls.
+
+The homepage starts with a school example and offers everyday life, real estate and code examples. Intent cards use existing palette tokens, visible example ideas and reduced-motion-aware hover and question transitions. Browser checks cover all six discovery routes through review, mobile discovery controls and the new source policies. Existing drafts and backups remain compatible.

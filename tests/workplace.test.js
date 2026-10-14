@@ -8,7 +8,7 @@ test('dark default and explicit palettes', () => {
  for (const pref of ['daylight','light']) assert.equal(paletteIsDark(pref),false);
 });
 test('starter library covers all categories, multiple role tags, guided questions and editable sections', () => {
- assert.equal(Object.keys(templates).length,17);
+ assert.equal(Object.keys(templates).length,22);
  assert.deepEqual(new Set(Object.values(templates).map(t=>t.category)),new Set(categories));
  for (const template of Object.values(templates)) {
   assert(template.description && template.deliverable);

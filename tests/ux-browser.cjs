@@ -6,7 +6,10 @@ module.exports = async function checkUx(browser) {
   await page.goto('http://127.0.0.1:5175/fixture.html#home');
   assert((await page.locator('.hero-copy').innerText()).includes('Free. No account.'));
   assert((await page.locator('.hero-copy').innerText()).includes('You paste it into the AI'));
-  await page.getByRole('button',{name:'IT & operations',exact:true}).click();
+  assert(await page.locator('#school-example').isVisible());
+  await page.getByRole('button',{name:'Everyday life',exact:true}).click();
+  assert(await page.locator('#life-example').isVisible());
+  await page.getByRole('button',{name:'Code & tech',exact:true}).click();
   assert(await page.locator('#it-example').isVisible());
   await page.getByRole('button',{name:'Real estate',exact:true}).click();
   assert(await page.locator('#estate-example').isVisible());
@@ -35,7 +38,7 @@ module.exports = async function checkUx(browser) {
   }
   const started=Date.now();
   await page.getByRole('link',{name:'Make a prompt',exact:true}).click();
-  assert(await page.locator('[data-guide-template=email]').isVisible(),'New visitor does not see task choices');
+  assert(await page.locator('[data-guide-template=study]').isVisible(),'New visitor does not see task choices');
   await page.locator('#guide-advanced').evaluate(el=>el.click());
   assert(await page.locator('#template-browser').evaluate(el=>el.open),'New visitor does not see templates');
   await page.locator('#template-search').fill('listing');

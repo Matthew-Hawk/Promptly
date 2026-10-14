@@ -76,7 +76,7 @@
         <div class="hero-copy">
           <div class="eyebrow"><span class="pulse" aria-hidden="true"></span>YOUR WORDS. A CLEARER REQUEST.</div>
           <h1>Better prompts.<br>Clearer requests.<br><em>Your words.</em></h1>
-          <p>Fill in a few simple boxes to create a ready-to-paste request for ChatGPT, Claude, or Gemini.</p>
+          <p>For the thing you’re learning, planning, making, or figuring out. Turn what’s on your mind into a clear request for the AI you already use.</p>
           <div class="hero-actions"><a class="button primary" href="#builder">Try it free</a><a class="button secondary" href="#about">How it works</a></div>
           <div class="hero-note trust-badge">Free. No account. Your work stays on your device.</div>
           <p class="ai-handoff">Promptly writes the prompt. You paste it into the AI you already use.</p>
@@ -85,7 +85,7 @@
           <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
           <span class="art-spark spark-one" aria-hidden="true">✳</span><span class="art-spark spark-two" aria-hidden="true">+</span>
           <span class="art-label">A FEW DETAILS GO A LONG WAY</span>
-          <div class="floating-block role"><span class="block-icon" aria-hidden="true">◎</span><div><small>01</small><strong>Pick a task</strong><span>A listing, an email, or a summary…</span></div></div>
+          <div class="floating-block role"><span class="block-icon" aria-hidden="true">◎</span><div><small>01</small><strong>Pick a task</strong><span>A study topic, dinner plans, or code…</span></div></div>
           <div class="connector" aria-hidden="true">↓</div>
           <div class="floating-block task"><span class="block-icon" aria-hidden="true">≡</span><div><small>02</small><strong>Fill in the details</strong><span>Your facts, audience, and tone…</span></div></div>
           <div class="floating-block context"><span class="block-icon" aria-hidden="true">✓</span><div><small>03</small><strong>Copy into your AI</strong><span>A request ready to paste…</span></div></div>
@@ -95,14 +95,22 @@
       </section>
       <section class="example-section" aria-labelledby="example-heading">
         <div class="eyebrow">SEE THE DIFFERENCE</div><h2 id="example-heading">A few details make your request clearer.</h2><p>Illustrative examples. Your facts and choices make the prompt yours.</p>
-        <div class="audience-tabs" role="group" aria-label="Choose an example"><button id="example-estate" aria-pressed="true">Real estate</button><button id="example-it" aria-pressed="false">IT & operations</button></div>
-        <article id="estate-example" class="example-panel">
+        <div class="audience-tabs" role="group" aria-label="Choose an example"><button id="example-school" aria-pressed="true">School & learning</button><button id="example-life" aria-pressed="false">Everyday life</button><button id="example-estate" aria-pressed="false">Real estate</button><button id="example-it" aria-pressed="false">Code & tech</button></div>
+        <article id="school-example" class="example-panel">
+          <div class="before-after"><div class="example-before"><h3>What you'd type</h3><p>I don’t get photosynthesis.</p></div><div class="example-after"><h3>What Promptly helps you write</h3><p>Help me understand photosynthesis at high school level. Explain it step by step with an everyday analogy, then give me a practice question. Wait for my attempt before showing the answer. If I get stuck, give me a hint.</p></div></div>
+          <div class="example-links"><a class="button primary" href="#builder/study">Make something click</a><a class="button secondary" href="#builder/creative">Explore a creative idea</a></div>
+        </article>
+        <article id="life-example" class="example-panel" hidden>
+          <div class="before-after"><div class="example-before"><h3>What you'd type</h3><p>Where should we eat?</p></div><div class="example-after"><h3>What Promptly helps you write</h3><p>Help me find a casual dinner spot near campus in Austin for three friends, under $20 each, with vegetarian options. If you can browse, check current menus and opening hours and link your sources. Compare a few options and explain the tradeoffs. Tell me what you can’t verify.</p></div></div>
+          <div class="example-links"><a class="button primary" href="#builder/dining">Find my next favorite</a><a class="button secondary" href="#builder/project">Make a plan</a></div>
+        </article>
+        <article id="estate-example" class="example-panel" hidden>
           <div class="before-after"><div class="example-before"><h3>What you'd type</h3><p>Write a listing for my house.</p></div><div class="example-after"><h3>What Promptly helps you write</h3><p>Write a listing description using the property facts I provide: three bedrooms, two bathrooms, and a fenced yard. Audience: buyers looking for flexible living space. Tone: warm and specific. Keep it under 150 words. Include a headline, a short description, and a next step to arrange a viewing. Use only the facts provided; do not invent features.</p></div></div>
-          <div class="example-links"><a class="button primary" href="#builder/listing">Write a listing description</a><a class="button secondary" href="#builder/inquiry">Reply to a buyer or seller</a><a class="button secondary" href="#builder/openhouse">Open house follow-up</a></div>
+          <div class="example-links"><a class="button primary" href="#builder/listing">Write a listing description</a><a class="button secondary" href="#builder/strategy">Build a market strategy</a><a class="button secondary" href="#builder/inquiry">Reply to a buyer or seller</a></div>
         </article>
         <article id="it-example" class="example-panel" hidden>
-          <div class="before-after"><div class="example-before"><h3>What you'd type</h3><p>Summarize this meeting.</p></div><div class="example-after"><h3>What Promptly helps you write</h3><p>Summarize these notes for the operations team. Separate decisions, open questions, and action items. Use only the supplied notes. List owners and dates only when stated; flag missing information.</p></div></div>
-          <div class="example-links"><a class="button primary" href="#builder/summary">Summarize notes</a><a class="button secondary" href="#builder/incident">Incident update</a><a class="button secondary" href="#builder/project">Project plan</a></div>
+          <div class="before-after"><div class="example-before"><h3>What you'd type</h3><p>Help me automate this in PowerShell.</p></div><div class="example-after"><h3>What Promptly helps you write</h3><p>Help me build an advanced PowerShell 7 script on Windows to audit inactive accounts and export a CSV. Use Microsoft Graph. Explain permissions, handle pagination and errors, and include meaningful tests. Preview results without changing accounts. Ask about any missing requirements before writing code.</p></div></div>
+          <div class="example-links"><a class="button primary" href="#builder/script">Work through some code</a><a class="button secondary" href="#builder/technical">Explain a technical concept</a></div>
         </article>
         <p class="review-note">Promptly does not verify facts or generate AI answers. Always check the AI's response before using it.</p>
       </section>

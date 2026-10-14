@@ -161,7 +161,7 @@ await check('Dark default, saved light theme, categories, role filters and searc
  const next=await frame(); const doc=next.contentDocument;
  assert(!doc.body.classList.contains('midnight'),'Light preference lost');
  field(doc.querySelector('#category-filter'),'Explain & document');
- assert(doc.querySelectorAll('[data-template]').length===3,'Category failed');
+ assert(doc.querySelectorAll('[data-template]').length===5,'Category failed');
  field(doc.querySelector('#role-filter'),'IT & technical support');
  field(doc.querySelector('#template-search'),'technical');
  assert(doc.querySelectorAll('[data-template]').length===1,'Filters failed');

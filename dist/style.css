@@ -1848,3 +1848,30 @@ body.builder-guided #builder > #toast {display:none;}
 .guide-writing-own .guide-choice-hint,.guide-writing-own .guide-content > .guide-answer-choices {display:none;}
 .guide-name-options {margin:6px 0;}
 @media(max-width:600px) {#guide-output {max-height:clamp(120px,24svh,210px);}}
+/* Intent cards invite exploration while keeping the guided workspace compact. */
+.guide-task-list:has(.guide-intent) {max-height:none;overflow:visible;gap:12px;}
+.guide-task-list .guide-intent {position:relative;padding:16px 42px 16px 56px;min-height:110px;transition:transform .2s ease,border-color .2s ease,background .2s ease;}
+.guide-intent-icon {position:absolute;top:17px;left:16px;color:var(--accent);font:normal 25px/1 monospace;}
+.guide-task-list .guide-intent small {display:block;font-size:11px;line-height:1.5;color:var(--accent);margin-top:9px;}
+.guide-card-arrow {position:absolute;right:16px;top:18px;color:var(--accent);transition:transform .2s ease;}
+.guide-task-list .guide-intent:hover {transform:translateY(-3px);background:var(--bg);}
+.guide-intent:hover .guide-card-arrow {transform:translate(2px,-2px);}
+@media(max-width:600px) {
+ .guide-task-list:has(.guide-intent) {gap:8px;}
+ .guide-task-list .guide-intent {padding:12px 22px 12px 12px;min-height:100px;}
+ .guide-task-list .guide-intent .guide-intent-icon {position:static;display:block;margin-bottom:9px;font-size:21px;}
+ .guide-task-list .guide-intent small {display:block;font-size:10px;margin-top:5px;}
+ .guide-card-arrow {right:10px;top:12px;font-size:12px;}
+}
+@media(prefers-reduced-motion:reduce) {.guide-task-list .guide-intent,.guide-card-arrow {transition:none;}.guide-task-list .guide-intent:hover,.guide-intent:hover .guide-card-arrow {transform:none;}}
+@media(max-width:600px) {
+ .guide-task-list .guide-intent {min-height:88px;padding-top:10px;padding-bottom:10px;}
+ .guide-task-list .guide-intent .guide-intent-icon {font-size:17px;margin-bottom:5px;}
+ .guide-task-list .guide-intent strong {font-size:13px;line-height:1.25;}
+ .guide-task-list .guide-intent small {font-size:10px;line-height:1.3;margin-top:4px;}
+ .guide-footer #guide-blank {font-size:12px;}
+}
+@media(max-width:600px) {
+ body.builder-guided #builder .builder-heading .draft-state {display:none;}
+ .guide-description {font-size:13px;line-height:1.6;}
+}

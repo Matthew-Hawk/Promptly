@@ -5,7 +5,7 @@
 ### Better prompts. Clearer requests. Your words.
 
 Start with a template. Make it fit your task.<br>
-A browser-local prompt builder for common workplace tasks: write, explain, plan, review, and summarize.
+A browser-local prompt builder for school, everyday discoveries, creative ideas, work, and code.
 
 [![Try the builder](https://img.shields.io/badge/TRY_THE_BUILDER_%E2%86%97-157F1F?style=for-the-badge)](https://promptly.thehawk6353.workers.dev/#builder)
 
@@ -18,7 +18,7 @@ No account. No API key. Your work stays on your device.
 
 ## 🧩 Build a prompt. Keep the useful parts.
 
-1. **Pick a task.** Click a popular task to start its instructions, browse all 17 templates, or write your own task.
+1. **Pick a task.** Choose learning, discovery, creativity, planning, strategy, or code to start its instructions, browse all 22 templates, or write your own task.
 2. **Follow the questions.** Answer one question at a time. Click suggested answers to fill a detail and continue, and add your own verified facts.
 3. **Review and export.** Read your prompt in the same panel, then copy or download Markdown for your preferred AI.
 4. **Save it for next time.** Save a completed prompt or reusable template. Update prompts with version history, or save as new.

@@ -263,4 +263,4 @@ export function attachResult(state,promptId,versionId,result) {
  const version = state.prompts.find(p => p.id === promptId)?.versions?.find(v => v.id === versionId);
  assert(version,'Select a saved version.'); version.result = validateResult(result);
 }
-for (const [key,template] of Object.entries(library)) templates[key] = {...clone(template), templateId:key, policy:'ask', outside:false, variables:template.variables.map(v => ({...v,value:''})),blocks:template.blocks.map(b => block(b.type,b.value))};
+for (const [key,template] of Object.entries(library)) templates[key] = {...clone(template), templateId:key, policy:'ask', outside:template.outside ?? false, variables:template.variables.map(v => ({...v,value:''})),blocks:template.blocks.map(b => block(b.type,b.value))};
